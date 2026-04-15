@@ -382,9 +382,8 @@
       max-height: 0; overflow: hidden; transition: max-height 0.3s;
     }
     .value-card:hover .value-projects { max-height: 60px; }
-    .value-tag {
-      font-size: 11px; padding: 2px 8px; border-radius: 100px;
-      background: var(--glass); color: var(--text-secondary);
+    .value-projects .journey-badge {
+      width: auto; height: auto; padding: 2px 8px; font-size: 11px;
     }
 
     /* ===== AS-IS TO-BE ===== */
@@ -1172,7 +1171,7 @@
         html += '<p>' + v.desc + '</p>';
         html += '<div class="value-projects">';
         v.projects.forEach(function(p) {
-          html += '<span class="value-tag">#' + p + '</span>';
+          html += '<button class="journey-badge" style="background:' + getCat(p).color + ';color:white" onclick="event.stopPropagation();navigateTo(\'project-' + p + '\')" title="' + DATA.projects[p].title + '">#' + p + '</button>';
         });
         html += '</div></div>';
       });
@@ -1209,7 +1208,7 @@
     function renderProjectCards() {
       var grid = document.getElementById('projectsGrid');
       var html = '';
-      var order = [1,2,8,7,4,5,3,11,6,9,10,12];
+      var order = [1,2,3,4,5,6,7,8,9,10,11,12];
       order.forEach(function(num, idx) {
         var p = DATA.projects[num];
         var cat = getCat(num);
