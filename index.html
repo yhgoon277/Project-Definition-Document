@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKT Next Channel — 과제정의서 통합 시각화</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { interpolate-size: allow-keywords; }
+
+    html.theme-dark {
+      --bg: #0A0A0A; --surface: #141414; --surface-hover: #1C1C1C;
+      --border: rgba(255,255,255,0.06);
+      --text: #EDEDED; --text-secondary: #888;
+      --accent: #3b82f6; --accent-secondary: #8b5cf6;
+      --positive: #10b981; --negative: #f43f5e; --warning: #f59e0b;
+      --glass: rgba(255,255,255,0.03);
+    }
+    html.theme-light {
+      --bg: #FAFAF9; --surface: #FFFFFF; --surface-hover: #F5F5F4;
+      --border: rgba(0,0,0,0.06);
+      --text: #0f172a; --text-secondary: #64748b;
+      --accent: #2563eb; --accent-secondary: #7c3aed;
+      --positive: #059669; --negative: #e11d48; --warning: #d97706;
+      --glass: rgba(0,0,0,0.02);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6; -webkit-font-smoothing: antialiased;
+      transition: background 0.3s, color 0.3s;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4,h5,h6 { color: var(--text); letter-spacing: -0.03em; line-height: 1.15; text-wrap: balance; }
+    h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; }
+    h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
+    h3 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 600; }
+    p, li, td, th, span, label { color: var(--text); font-weight: 400; }
+    .text-secondary { color: var(--text-secondary); }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* ===== LAYOUT ===== */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 0 0 1px var(--border), 0 12px 24px rgba(0,0,0,0.12);
+      transform: translateY(-4px);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes dashDraw { to { stroke-dashoffset: 0; } }
+    @keyframes letterReveal { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes particleFloat {
+      0% { transform: translate(0, 0) scale(1); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
+    }
+
+    .animate { animation: fadeInUp 0.6s ease-out both; }
+    .animate.delay-1 { animation-delay: 0.1s; }
+    .animate.delay-2 { animation-delay: 0.2s; }
+    .animate.delay-3 { animation-delay: 0.3s; }
+    .animate.delay-4 { animation-delay: 0.4s; }
+    .animate.delay-5 { animation-delay: 0.5s; }
+    .animate.delay-6 { animation-delay: 0.6s; }
+    .animate.delay-7 { animation-delay: 0.7s; }
+    .animate.delay-8 { animation-delay: 0.8s; }
+
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s cubic-bezier(0.25,0.46,0.45,0.94), transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal.slide-left { transform: translateX(-40px); }
+    .reveal.slide-left.visible { transform: translateX(0); }
+    .reveal.slide-right { transform: translateX(40px); }
+    .reveal.slide-right.visible { transform: translateX(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .viz-menu, .hero-particles, .nav-bar { display: none !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .card { break-inside: avoid; border: 1px solid #ddd; box-shadow: none; }
+      .page { display: block !important; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+    @page { margin: 0.75in; }
+
+    /* ===== MENU ===== */
+    .viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+    .viz-menu-toggle {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(12px); transition: all 0.2s;
+    }
+    .viz-menu-toggle:hover { background: var(--surface-hover); }
+    .viz-menu-dropdown {
+      position: absolute; top: 52px; right: 0; min-width: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 8px;
+      opacity: 0; visibility: hidden; transform: translateY(-8px);
+      transition: all 0.2s; backdrop-filter: blur(16px);
+    }
+    .viz-menu-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .viz-menu-dropdown button {
+      width: 100%; padding: 10px 14px; border: none; border-radius: 8px;
+      background: transparent; color: var(--text); font-size: 14px;
+      font-family: inherit; cursor: pointer; text-align: left;
+      display: flex; align-items: center; gap: 10px; transition: background 0.15s;
+    }
+    .viz-menu-dropdown button:hover { background: var(--surface-hover); }
+
+    /* ===== SKIP LINK ===== */
+    .skip-link {
+      position: absolute; left: -9999px; top: auto; width: 1px; height: 1px;
+      overflow: hidden; z-index: 10000; padding: 8px 16px;
+      background: var(--accent); color: white; text-decoration: none; border-radius: 4px;
+    }
+    .skip-link:focus {
+      position: fixed; left: 16px; top: 16px; width: auto; height: auto; overflow: visible;
+    }
+
+    /* ===== NAV BAR ===== */
+    .nav-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9990;
+      background: rgba(10,10,10,0.8); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px; display: none; align-items: center; gap: 16px;
+      transition: all 0.3s;
+    }
+    .theme-light .nav-bar { background: rgba(250,250,249,0.85); }
+    .nav-bar.visible { display: flex; }
+    .nav-back-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: none; border: none; color: var(--accent);
+      font-family: inherit; font-size: 14px; font-weight: 500;
+      cursor: pointer; padding: 6px 12px; border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .nav-back-btn:hover { background: var(--glass); }
+    .nav-title { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      position: relative; overflow: hidden; padding: 60px 24px;
+      background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 30%, #0a1a3e 60%, #0a0a1e 100%);
+      background-size: 300% 300%; animation: gradientShift 20s ease infinite;
+    }
+    .theme-light .hero {
+      background: linear-gradient(135deg, #e8eaf6 0%, #e1d5f0 30%, #d5e5f0 60%, #e8eaf6 100%);
+      background-size: 300% 300%;
+    }
+    .hero-particles {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .hero-particle {
+      position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(59,130,246,0.4); animation: particleFloat linear infinite;
+    }
+    .theme-light .hero-particle { background: rgba(37,99,235,0.3); }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 100px;
+      background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3);
+      font-size: 13px; font-weight: 500; color: var(--accent);
+      margin-bottom: 32px;
+    }
+    .hero h1 { margin-bottom: 20px; }
+    .hero h1 span {
+      display: inline-block; opacity: 0;
+      animation: letterReveal 0.5s ease-out forwards;
+    }
+    .hero-subtitle {
+      font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--text-secondary);
+      max-width: 600px; margin: 0 auto 40px;
+    }
+    .hero-stats {
+      display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-value {
+      font-size: 2.5rem; font-weight: 800; color: var(--accent);
+      line-height: 1;
+    }
+    .hero-stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+    .scroll-indicator {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--text-secondary); font-size: 12px;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    /* ===== SECTION ===== */
+    .section { padding: 80px 0; }
+    .section-header { text-align: center; margin-bottom: 56px; }
+    .section-header h2 { margin-bottom: 16px; }
+    .section-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+    .section-label {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--accent); margin-bottom: 12px;
+    }
+
+    /* ===== JOURNEY TIMELINE ===== */
+    .journey { padding: 80px 0; overflow-x: auto; }
+    .journey-track {
+      display: flex; align-items: flex-start; gap: 0;
+      min-width: 900px; padding: 20px 40px; position: relative;
+    }
+    .journey-line {
+      position: absolute; top: 44px; left: 60px; right: 60px; height: 3px;
+      background: var(--border); z-index: 0;
+    }
+    .journey-line-fill {
+      height: 100%; width: 0; background: linear-gradient(90deg, #6C5CE7, #00B894, #FDCB6E, #0984E3, #E17055, #636E72);
+      transition: width 1.5s cubic-bezier(0.25,0.46,0.45,0.94);
+      border-radius: 2px;
+    }
+    .journey-stage {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      position: relative; z-index: 1; min-width: 100px;
+    }
+    .journey-node {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface); border: 3px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.4s; margin-bottom: 12px; position: relative;
+    }
+    .journey-node.active { border-color: var(--accent); background: var(--accent); }
+    .journey-node.active::after {
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid var(--accent); opacity: 0.3;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .journey-stage-name {
+      font-size: 13px; font-weight: 600; text-align: center;
+      margin-bottom: 8px; white-space: nowrap;
+    }
+    .journey-badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+    .journey-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; border: none;
+    }
+    .journey-badge:hover { transform: scale(1.15); }
+
+    /* ===== VALUES ===== */
+    .values-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px;
+    }
+    .value-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px 20px; text-align: center;
+      transition: all 0.3s;
+    }
+    .value-card:hover {
+      transform: translateY(-6px); box-shadow: 0 16px 32px rgba(0,0,0,0.1);
+    }
+    .value-icon {
+      width: 48px; height: 48px; border-radius: 12px; margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .value-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .value-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .value-projects {
+      margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
+      max-height: 0; overflow: hidden; transition: max-height 0.3s;
+    }
+    .value-card:hover .value-projects { max-height: 60px; }
+    .value-tag {
+      font-size: 11px; padding: 2px 8px; border-radius: 100px;
+      background: var(--glass); color: var(--text-secondary);
+    }
+
+    /* ===== AS-IS TO-BE ===== */
+    .comparison-grid { display: flex; flex-direction: column; gap: 16px; }
+    .comparison-row {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; align-items: stretch;
+      border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+    }
+    .comparison-asis {
+      padding: 24px; background: rgba(244,63,94,0.05);
+      border-right: 1px solid var(--border);
+    }
+    .theme-light .comparison-asis { background: rgba(244,63,94,0.04); }
+    .comparison-arrow {
+      display: flex; align-items: center; justify-content: center;
+      width: 56px; background: var(--surface); color: var(--text-secondary);
+      font-size: 18px;
+    }
+    .comparison-tobe {
+      padding: 24px; background: rgba(16,185,129,0.05);
+    }
+    .theme-light .comparison-tobe { background: rgba(16,185,129,0.04); }
+    .comparison-category {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 8px; padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .comparison-text { font-size: 15px; font-weight: 500; line-height: 1.5; }
+    .comparison-asis .comparison-text { color: var(--negative); }
+    .comparison-tobe .comparison-text { color: var(--positive); }
+
+    /* ===== PROJECT CARDS GRID ===== */
+    .projects-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .project-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px; cursor: pointer;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .project-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .project-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+    }
+    .project-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .project-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 32px; height: 32px; border-radius: 8px;
+      font-size: 13px; font-weight: 800; color: white;
+    }
+    .project-card h4 { font-size: 16px; font-weight: 700; line-height: 1.3; flex: 1; }
+    .project-card-purpose { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .project-tag {
+      font-size: 11px; padding: 3px 10px; border-radius: 100px;
+      background: var(--glass); color: var(--text-secondary); font-weight: 500;
+      border: 1px solid var(--border);
+    }
+    .project-card-arrow {
+      position: absolute; bottom: 20px; right: 20px;
+      color: var(--text-secondary); transition: all 0.3s;
+    }
+    .project-card:hover .project-card-arrow { color: var(--accent); transform: translateX(4px); }
+
+    /* ===== DEPENDENCY DIAGRAM ===== */
+    .dep-diagram {
+      position: relative; padding: 40px 20px; min-height: 400px;
+    }
+    .dep-layer {
+      display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 40px; position: relative;
+    }
+    .dep-layer-label {
+      position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-secondary);
+      writing-mode: vertical-rl; text-orientation: mixed;
+    }
+    .dep-node {
+      padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      background: var(--surface); border: 1px solid var(--border);
+      text-align: center; cursor: pointer; transition: all 0.3s;
+      min-width: 140px;
+    }
+    .dep-node:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .dep-connector {
+      text-align: center; color: var(--text-secondary); font-size: 20px;
+      margin: 8px 0;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      padding: 48px 0; border-top: 1px solid var(--border);
+      text-align: center; color: var(--text-secondary); font-size: 13px;
+    }
+    .footer-links {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+      margin-top: 20px;
+    }
+    .footer-link {
+      padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      background: var(--glass); border: 1px solid var(--border);
+      color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+      border: none; font-family: inherit;
+    }
+    .footer-link:hover { color: var(--accent); background: var(--surface-hover); }
+
+    /* ===== DETAIL PAGE ===== */
+    .detail-hero {
+      padding: 100px 0 60px; position: relative; overflow: hidden;
+    }
+    .detail-hero::before {
+      content: ''; position: absolute; inset: 0;
+      opacity: 0.05; pointer-events: none;
+    }
+    .detail-breadcrumb {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 24px;
+      font-size: 13px; color: var(--text-secondary);
+    }
+    .detail-breadcrumb button {
+      background: none; border: none; color: var(--accent);
+      font-family: inherit; font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .detail-breadcrumb button:hover { text-decoration: underline; }
+    .detail-meta {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .detail-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600;
+    }
+    .detail-docid { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .detail-title { margin-bottom: 20px; }
+    .detail-purpose-list {
+      list-style: none; display: flex; flex-direction: column; gap: 12px;
+    }
+    .detail-purpose-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 15px; line-height: 1.6;
+    }
+    .detail-purpose-list li::before {
+      content: ''; flex-shrink: 0; width: 8px; height: 8px;
+      border-radius: 50%; margin-top: 8px;
+    }
+
+    .detail-section { padding: 48px 0; }
+    .detail-section-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    }
+    .detail-section-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .detail-section-header h3 { font-size: 1.3rem; }
+
+    .detail-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .detail-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .detail-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .detail-card p, .detail-card li { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+    .detail-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .detail-card ul li { padding-left: 16px; position: relative; }
+    .detail-card ul li::before {
+      content: ''; position: absolute; left: 0; top: 9px;
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+
+    .status-card { border-left: 3px solid; }
+    .status-card.problem { border-left-color: var(--negative); }
+    .status-card.problem .detail-card ul li::before { background: var(--negative); }
+    .status-card.solution { border-left-color: var(--positive); }
+    .status-card.solution .detail-card ul li::before { background: var(--positive); }
+    .status-card.cause { border-left-color: var(--warning); }
+    .status-card.cause .detail-card ul li::before { background: var(--warning); }
+
+    .feature-card {
+      background: rgba(16,185,129,0.04); border: 1px solid rgba(16,185,129,0.1);
+    }
+    .feature-card h5 { color: var(--positive); }
+
+    .related-projects {
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .related-project-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      color: var(--text); cursor: pointer; transition: all 0.2s;
+    }
+    .related-project-btn:hover {
+      transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-color: var(--accent);
+    }
+    .related-project-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 6px;
+      font-size: 11px; font-weight: 800; color: white;
+    }
+
+    .value-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .value-badge-item {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 100px;
+      background: var(--glass); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 500;
+    }
+
+    /* ===== PAGE TRANSITION ===== */
+    .page-enter { animation: fadeInUp 0.5s ease-out both; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .values-grid { grid-template-columns: repeat(2, 1fr); }
+      .values-grid > :last-child { grid-column: span 2; }
+      .comparison-row { grid-template-columns: 1fr; }
+      .comparison-arrow { width: auto; height: 40px; }
+      .hero-stats { gap: 24px; }
+      .journey-track { min-width: 700px; }
+      .dep-layer-label { display: none; }
+      .detail-cards { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 375px) {
+      body { overflow-x: hidden; }
+      .container { padding: 0 16px; }
+      .values-grid { grid-template-columns: 1fr; }
+      .values-grid > :last-child { grid-column: span 1; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== CATEGORY COLORS ===== */
+    .cat-ai { --cat: #6C5CE7; }
+    .cat-order { --cat: #00B894; }
+    .cat-billing { --cat: #FDCB6E; }
+    .cat-contract { --cat: #0984E3; }
+    .cat-support { --cat: #E17055; }
+    .cat-platform { --cat: #636E72; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
+  <!-- MENU -->
+  <div class="viz-menu">
+    <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
+      </svg>
+    </button>
+    <div class="viz-menu-dropdown" id="vizMenuDropdown">
+      <button onclick="cycleTheme()"><span id="themeIcon">🌙</span><span id="themeLabel">Dark</span></button>
+      <button onclick="downloadImage()"><span>📥</span><span>Download PNG</span></button>
+      <button onclick="window.print()"><span>🖨️</span><span>Print / PDF</span></button>
+    </div>
+  </div>
+
+  <!-- NAV BAR (detail pages) -->
+  <nav class="nav-bar" id="navBar" aria-label="Detail navigation">
+    <button class="nav-back-btn" onclick="navigateTo('landing')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      전체 과제
+    </button>
+    <span class="nav-title" id="navTitle"></span>
+  </nav>
+
+  <main id="main-content" role="main">
+
+    <!-- ========== LANDING PAGE ========== -->
+    <div class="page active" id="page-landing">
+
+      <!-- HERO -->
+      <section class="hero" aria-label="Hero">
+        <div class="hero-particles" id="heroParticles"></div>
+        <div class="hero-content">
+          <div class="hero-badge animate">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            SKT Next Channel 2026
+          </div>
+          <h1 class="animate delay-1" id="heroTitle"></h1>
+          <p class="hero-subtitle animate delay-3">12개 과제가 하나의 고객 여정으로 연결되어<br>디지털 채널 경험을 혁신합니다</p>
+          <div class="hero-stats animate delay-4">
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="12" data-suffix="개">0</div>
+              <div class="hero-stat-label">과제 정의서</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="6" data-suffix="개">0</div>
+              <div class="hero-stat-label">카테고리</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="8" data-suffix="단계">0</div>
+              <div class="hero-stat-label">고객 여정</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="5" data-suffix="대">0</div>
+              <div class="hero-stat-label">전략 가치</div>
+            </div>
+          </div>
+        </div>
+        <div class="scroll-indicator animate delay-6">
+          <span>스크롤하여 탐색</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+      </section>
+
+      <!-- JOURNEY TIMELINE -->
+      <section class="section journey" data-reveal aria-label="고객여정 타임라인">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-label">Customer Journey</span>
+            <h2>고객 여정 타임라인</h2>
+            <p>8단계 고객 여정에 12개 과제가 어떻게 매핑되는지 한눈에 확인하세요</p>
+          </div>
+          <div class="journey-track" id="journeyTrack">
+            <div class="journey-line"><div class="journey-line-fill" id="journeyFill"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 STRATEGIC VALUES -->
+      <section class="section" data-reveal aria-label="5대 전략 가치">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-label">Strategic Values</span>
+            <h2>5대 전략 가치</h2>
+            <p>12개 과제를 관통하는 핵심 전략 방향</p>
+          </div>
+          <div class="values-grid" id="valuesGrid"></div>
+        </div>
+      </section>
+
+      <!-- AS-IS vs TO-BE -->
+      <section class="section" data-reveal aria-label="AS-IS TO-BE 비교">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-label">Transformation</span>
+            <h2>AS-IS → TO-BE</h2>
+            <p>6개 카테고리별 현재 문제와 목표 변화</p>
+          </div>
+          <div class="comparison-grid" id="comparisonGrid"></div>
+        </div>
+      </section>
+
+      <!-- 12 PROJECT CARDS -->
+      <section class="section" data-reveal aria-label="12개 과제 카드">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-label">12 Projects</span>
+            <h2>과제 정의서 상세</h2>
+            <p>각 과제를 클릭하여 상세 내용을 확인하세요</p>
+          </div>
+          <div class="projects-grid" id="projectsGrid"></div>
+        </div>
+      </section>
+
+      <!-- DEPENDENCY DIAGRAM -->
+      <section class="section" data-reveal aria-label="과제 간 의존관계">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-label">Dependencies</span>
+            <h2>과제 간 의존 관계</h2>
+            <p>기반 인프라부터 AI 오버레이까지, 과제 간 연결 구조</p>
+          </div>
+          <div class="dep-diagram" id="depDiagram"></div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer" aria-label="Footer">
+        <div class="container">
+          <p>SKT Next Channel — 과제정의서 통합 시각화 2026</p>
+          <div class="footer-links" id="footerLinks"></div>
+        </div>
+      </footer>
+
+    </div>
+
+    <!-- ========== DETAIL PAGES (generated by JS) ========== -->
+    <div id="detailPages"></div>
+
+  </main>
+
+  <script>
+    // === DATA ===
+    var DATA = {
+      categories: [
+        { id: 'ai', name: 'AI/개인화', color: '#6C5CE7', projects: [1, 2] },
+        { id: 'order', name: '주문/구매', color: '#00B894', projects: [8, 7] },
+        { id: 'billing', name: '요금/결제', color: '#FDCB6E', projects: [4, 5] },
+        { id: 'contract', name: '계약/이용', color: '#0984E3', projects: [3, 11] },
+        { id: 'support', name: '고객지원', color: '#E17055', projects: [6] },
+        { id: 'platform', name: '플랫폼/기반', color: '#636E72', projects: [9, 10, 12] }
+      ],
+      journeyStages: [
+        { name: '탐색', projects: [1, 9] },
+        { name: '비교/선택', projects: [2, 9] },
+        { name: '주문', projects: [8] },
+        { name: '계약/개통', projects: [3] },
+        { name: '이용/변경', projects: [11, 3, 10] },
+        { name: '요금/결제', projects: [4, 5] },
+        { name: '지원', projects: [6] },
+        { name: '해지/잔존', projects: [3, 7] }
+      ],
+      values: [
+        { name: '셀프완결', icon: '⚡', desc: '콜센터·유통망 의존 감소, 고객이 직접 해결하는 경험', projects: [1,3,4,5,6,7,8,11,12] },
+        { name: 'AI 개인화', icon: '🤖', desc: '고객 맥락을 반영한 맞춤 경험과 추천 제공', projects: [1,2,6,10,11] },
+        { name: '원스톱 통합', icon: '🔗', desc: '분산된 기능을 하나의 흐름으로 통합', projects: [1,2,3,6,7,8,9,12] },
+        { name: '신뢰 기반 설계', icon: '🛡️', desc: '고객 언어와 이해도 중심의 투명한 설계', projects: [4,5] },
+        { name: '데이터 최적화', icon: '📊', desc: '행동 트래킹과 지속적인 서비스 개선', projects: [1,2,9,10] }
+      ],
+      comparisons: [
+        { cat: 'ai', catName: 'AI/개인화', color: '#6C5CE7', asis: '분산된 탐색, 개인화 부재, 챗봇 신뢰도 저하', tobe: 'AI Agent 원스톱 컨시어지, 컨텍스트 기반 추천' },
+        { cat: 'order', catName: '주문/구매', color: '#00B894', asis: '채널별 다른 주문 흐름, 비대면 완결률 저조', tobe: '표준화된 모듈형 주문, 사후관리 통합' },
+        { cat: 'billing', catName: '요금/결제', color: '#FDCB6E', asis: '기능 분산, 금액 이해 곤란, 결제수단 제한', tobe: '통합 허브, 신뢰 기반 셀프완결 결제' },
+        { cat: 'contract', catName: '계약/이용', color: '#0984E3', asis: '고정 메뉴, 채널 이동 필요, 정보 과다', tobe: '통합 대시보드, 예측형 지원, 맞춤 자산 관리' },
+        { cat: 'support', catName: '고객지원', color: '#E17055', asis: '분산된 지원, 챗봇 보조적, 온·오프 단절', tobe: '해결 중심 통합 체계, 온·오프 맥락 연결' },
+        { cat: 'platform', catName: '플랫폼/기반', color: '#636E72', asis: '채널별 분산 운영, 전시 분절, 인증 불일치', tobe: 'Atomic 전시, 통합 회원, 리워드 허브' }
+      ],
+      projects: {
+        1: { title: 'AI 기반 탐색·추천 경험 설계', docId: 'TK-CH-AI', cat: 'ai',
+          purpose: ['고객이 원하는 정보 탐색부터 의사결정, 업무처리까지 한 번에 수행할 수 있는 AI Agent 원스톱 경험 제공', '고객의 상태·이력을 반영한 최적의 정보를 제시하고, Next Action을 제안하는 컨시어지형 추천 경험 제공', '고객 행동 데이터 수집·트래킹 체계를 수립하고 서비스 고도화에 활용'],
+          currentState: ['탐색–의사결정–업무처리가 분리된 구조', '개인화 없이 획일적인 상품/혜택 전시', '채널별 데이터 수집·트래킹 분산'],
+          painPoints: ['업무 흐름 단절 (End-to-End 경험 부재)', '맞춤 정보·상품 탐색 부담 증가', 'Next Action 오퍼링 부재로 기회 미활용', '비교/분석 및 의사결정 지원 미흡', '챗봇 및 추천 신뢰도 낮음'],
+          rootCause: ['통합 AI Agent 부재로 원스톱 실행 흐름 미구축', '개인화 기반 전시·추천 체계 미흡', '채널별 데이터 수집·트래킹 분산으로 통합 분석 기반 부족'],
+          features: ['AI Agent 진입 및 요청 입력', '비교 기능 및 의사결정 지원', 'Next Action 후보 도출 및 오퍼링', '행동 이벤트 정의 및 트래킹', '추천/전시/Action 정책 설정'],
+          related: [2, 9, 6], values: ['AI 개인화', '원스톱 통합', '데이터 최적화'] },
+        2: { title: 'AI가 완성하는 상품 선택 설계', docId: 'TK-CH-X001', cat: 'ai',
+          purpose: ['분산된 상품·혜택·할인 데이터를 표준화하여 이해·비교·시뮬레이션·선택까지 끊김 없는 경험 구축', 'AI가 설명·비교·추천·생성까지 수행할 수 있는 상품 지식 체계 마련'],
+          currentState: ['상품/할인 정보가 채널별로 분산 관리', '탐색→비교→선택 단계가 분절', '고객 기준의 정확한 정보 제공 곤란'],
+          painPoints: ['상품 구조 복잡성으로 이해 어려움', '비교/시뮬레이션/추천이 연결되지 않음', '상품 데이터 표준화 부재'],
+          rootCause: ['채널별·기능별 개별 관리 구조', '공통 스키마·Master DB 부재', '구조화된 상품 지식 체계 미구축'],
+          features: ['상품등록 및 기본 정보 관리', '상품 비교 및 시뮬레이션', 'AI 기반 추천안 생성', '추천 근거 및 설득 논리 제공'],
+          related: [1, 5, 9], values: ['AI 개인화', '원스톱 통합'] },
+        3: { title: '계약 및 가입 정보 관리 체계 기획', docId: 'TK_CH_계약', cat: 'contract',
+          purpose: ['가입 서비스·요금제·계약 정보 조회, 변경·정지·분실 등 상태 관리를 담당하는 핵심 MY 통합 대시보드 설계', '상품/계약 단위로 흩어져있던 가입정보들을 고객 중심 통합 제공', '셀프 완결 가능하도록 고객 이해 개선 구축'],
+          currentState: ['T4s 통합 시 정보량 과다', '고정된 메뉴 구조로 탐색 부담', '액션 탐색 피로도 증가'],
+          painPoints: ['회선단위 구성의 통합 관리 곤란', '분산된 기능 구현으로 채널 이동 필요', '고객경험 부족으로 상담 의존'],
+          rootCause: ['서비스/회선/상품 단위 분절 관리', '채널별 MY 기능 연계 미흡', '조회 중심 구조로 액션 지원 부족'],
+          features: ['통합 가입정보 확인 (요금제, 결합, 약정, 할부)', '해지/정지/분실 통합 진입', '긴급 업무 허브', '계약 상태 통합 조회 모듈'],
+          related: [11, 12, 4], values: ['셀프완결', '원스톱 통합'] },
+        4: { title: '신뢰 기반 셀프완결형 요금 납부·관리 경험 재설계', docId: 'TK_CH_BL', cat: 'billing',
+          purpose: ['청구·납부 정보를 고객 관점에서 재해석하고 의미 이해 중심 구조로 전환', '사후 확인에서 사전 예측·관리 가능한 구조로 전환', '자동납부·납부수단·실패 가능성까지 포함한 사전 관리 경험 강화', '조회-납부-변경-예외 대응 간 셀프완결형 처리 기반 구축', '개인 중심을 넘어 가족·다회선·위임 처리까지 확장'],
+          currentState: ['기능 분산 구조로 여정 단절', '청구 금액 중심 나열', '생활 단위 시나리오 미흡', '예외 상황 대응 한계'],
+          painPoints: ['금액 이해 곤란 — 왜 이 금액인지 설명 부족', '다음 달 예측 어려움', '미납·자동납부 실패 해결 곤란', '메뉴 탐색 부담', '권한 장벽 (가족·위임)'],
+          rootCause: ['IA와 처리 구조 분절', '고객 언어 부재 (시스템 용어 그대로 노출)', '정보 통합 부재', '정책 디지털 완결성 부족'],
+          features: ['상태 파악 및 요금/납부 통합 허브', '현재 요금 및 미납 상태 확인', '자동납부 정책 관리', '납부수단 변경'],
+          related: [5, 3], values: ['셀프완결', '신뢰 기반 설계'] },
+        5: { title: '결제 효율화 체계 구축', docId: 'TK-CH-PAY', cat: 'billing',
+          purpose: ['고객이 복잡한 금액/청구 구조를 직관적으로 이해하고 결제까지 완료할 수 있도록 결제 경험을 단순화 및 표준화'],
+          currentState: ['결제 금액·수단·고객정보가 상품/채널별로 상이하게 운영', '간편결제 연동 제한적', '채널 간 결제 UX 불일치'],
+          painPoints: ['복잡한 금액 구성으로 이해 어려움', '제한적 결제수단 (간편결제 부재)', '셀프처리 완결성 저하'],
+          rootCause: ['결제 프로세스 UI 표준화 부재', '채널 간 결제 데이터 연계 부족'],
+          features: ['결제 진입 (주문/상품 단위 결제 요약)', '할인 적용 (포인트·쿠폰·제휴카드)', '결제수단 선택 (최근/기본/선호 우선 노출)', '결제 실행 및 인증', '결제 결과 및 후속 처리'],
+          related: [4, 2, 8], values: ['셀프완결', '신뢰 기반 설계'] },
+        6: { title: '셀프 주도형 해결 중심 고객지원 통합 체계 구축', docId: 'TK_CH_CS', cat: 'support',
+          purpose: ['온라인 채널 내 분산된 고객지원 기능을 통합 체계로 재구성', '기능 나열형에서 문제 유형 중심으로 전환하여 탐색 부담 축소', '검색→안내→실행→상담 연결까지 이어지는 해결 중심 흐름 구축', '온·오프라인 채널 간 고객지원 맥락 연결'],
+          currentState: ['기능 분산 운영 (상담, FAQ, 이용안내 등 별도)', '연결 구조 미흡', '챗봇 보조 역할에 그침', '셀프 처리 중단 빈발'],
+          painPoints: ['해결 위치 판단 부담', '실행 연결 부족', '검색 실패 시 이탈', '챗봇 신뢰도 저하', '처리 상태 파악 어려움', '채널 이동 시 반복 설명'],
+          rootCause: ['기능/메뉴 중심 IA 구조', '오케스트레이션 부재', 'AI 역할 불명확', '온·오프라인 데이터 연계 부족'],
+          features: ['고객지원 허브 통합 진입', '문제 유형 중심 라우팅', '해결-상담 연결 흐름', '온·오프라인 이력 통합 관리'],
+          related: [1, 12], values: ['셀프완결', 'AI 개인화', '원스톱 통합'] },
+        7: { title: '주문 사후관리 체계 고도화', docId: 'TK-CH-X001', cat: 'order',
+          purpose: ['교환/반품/환불/해지 등 주문 사후 업무를 통합 관리', '고객이 사후 처리 상태를 직관적으로 파악하고 셀프로 해결할 수 있는 구조 구축'],
+          currentState: ['사후관리 기능이 분산되어 직관적 이용 불가', 'CS 의존도가 높은 구조'],
+          painPoints: ['가용 액션 파악 어려움', '셀프서비스 불가 시 CS 의존 증가', '처리 진행 상태 확인 곤란'],
+          rootCause: ['주문 사후 전체 라이프사이클 통합 설계 부재', '기능별 개별 구현으로 일관성 부족'],
+          features: ['주문 이력 조회 (통합 뷰)', '배송 관리 및 변경', '클레임 처리 (교환/반품/환불/해지)', '상품 통합 및 개통 관리'],
+          related: [8, 3], values: ['셀프완결', '원스톱 통합'] },
+        8: { title: '고객 주문경험 혁신 프로세스 재설계', docId: 'TK-CH-X001', cat: 'order',
+          purpose: ['표준화된 공통 주문 프로세스 수립으로 채널·상품 무관 일관된 경험 제공', '모듈형·재사용 가능한 설계로 확장성 확보'],
+          currentState: ['상품/유형별 다른 주문 단계와 인증 방식', '앱/웹 이원화로 복잡성 증가', '비대면 완결률 저조'],
+          painPoints: ['복잡한 단계와 반복 입력', '채널별 다른 흐름으로 혼란', '비대면 완결률 저조로 오프라인 의존'],
+          rootCause: ['표준화된 공통 주문 프로세스 부재', '앱/웹 분리 운영', '고객정보 재활용 체계 미흡'],
+          features: ['로그인 상태 정의 및 비로그인 탐색', '상품 선택/구성 모듈', '주문 정보 입력 표준화', '약관 동의 및 인증', '결제 연동', '상태 관리 및 개통', '온보딩 및 자동연결'],
+          related: [7, 2, 5], values: ['셀프완결', '원스톱 통합'] },
+        9: { title: '전시 구조 및 노출 정책 기획·운영', docId: 'TK-CH-DSP', cat: 'platform',
+          purpose: ['채널 전시 구조를 Atomic 단위로 재설계', '맥락·세그먼트 기반 차별적 구성으로 개인화 대응', '구조적 복잡도 축소를 통한 장기 확장성 확보'],
+          currentState: ['T4S 전시가 채널별 분산', '링크/메뉴 중심의 정적 구조', '서비스 간 흐름 단절'],
+          painPoints: ['무관한 정보 반복 노출', '자주 쓰는 기능이 노출되지 않음', '탐색 부담 증가'],
+          rootCause: ['서비스별 분절된 전시 구조', '개별 운영 체계로 일관성 부재'],
+          features: ['Atomic 전시 요소 구조화', '맥락 기반 차별 구성 (세그먼트별)', '개인화 대응 전시 구조', '전시 정책 통합 운영'],
+          related: [1, 2, 10], values: ['데이터 최적화', '원스톱 통합'] },
+        10: { title: '이벤트·멤버십 혜택 및 리워드 통합 관리 체계 기획', docId: 'TK-CH-EM', cat: 'platform',
+          purpose: ['분산된 혜택 발견-사용 프로세스를 통합하여 원스톱 혜택 경험 제공', '재방문 유도 및 고객 인게이지먼트 강화'],
+          currentState: ['혜택 발견-사용 프로세스 분산', '채널별 이벤트/리워드 개별 관리', '일회성 이벤트 중심 운영'],
+          painPoints: ['혜택 인지 어려움 — 뭘 받을 수 있는지 모름', '소모적 혜택 배포 (행동 유도 실패)', '운영 자원 분산으로 비효율'],
+          rootCause: ['일방향 혜택 전시 (사업자 관점)', '고객 행동 기반 개인화 부재', '의미 있는 고객 행동 정의 미흡'],
+          features: ['재방문 리마인더 및 알림 체계', '마감/리워드/혜택/참여 알림', '통합 이벤트/혜택 허브', '프로그램별 운영 가이드라인'],
+          related: [9, 11, 12], values: ['데이터 최적화', 'AI 개인화'] },
+        11: { title: '예측형 지원 기반 상품·서비스 이용 편의성 강화', docId: 'TK-CH-X001', cat: 'contract',
+          purpose: ['구독 상품 자산(데이터, 쿠폰, 바우처 등)의 통합 관리', '고객 이용 패턴 기반 예측형 지원으로 편의성 극대화'],
+          currentState: ['채널별 다른 자산 관리 구조/방식', '높은 복잡도로 이용 부담'],
+          painPoints: ['채널 간 기능 격차 (앱은 되는데 웹은 안됨)', '기능 나열형 구조 (빈도 고려 없음)', '자산 맥락/안내 부재'],
+          rootCause: ['자산 관리 전반의 통합 설계 부재', '채널별 개별 구현'],
+          features: ['데이터 관리 (저장 설정, 일괄처리)', '충전/선물 자동화 및 소진 방지', '예외 처리 (24/7 대안 제시)', '통합 쿠폰/바우처 뷰', '미사용 자산 케어 (만료/미활용 알림)'],
+          related: [3, 10], values: ['AI 개인화', '셀프완결'] },
+        12: { title: '통합회원정보 기반 계정·인증·알림·약관 관리체계 구축', docId: 'TK-CH-X001', cat: 'platform',
+          purpose: ['채널 간 분산된 계정/인증/알림/약관을 통합 관리', 'CI 기반 단일 계정 체계로 일관된 경험 제공'],
+          currentState: ['T4s 채널별 계정·인증 분산', '인증 방식 불일치', '개별 채널 관리로 비효율'],
+          painPoints: ['일관된 관리 어려움', '인증 방식 상이로 불편', '알림 정보 유실/과부하', '사전 로그인 가치 확인 불가'],
+          rootCause: ['채널별 별도 계정·인증 체계 운영', '통합 회원 관리 기반 부재'],
+          features: ['CI 기반 통합 계정 관리', 'SSO/PASS/소셜 로그인 통합', '인증 모듈 공통화 (생체/PASS/소셜)', '통합 알림 센터 및 수신 제어', '통합 약관 관리 및 이력', '사전 로그인 가치 제공 및 전환 유도'],
+          related: [3, 6, 10], values: ['셀프완결', '원스톱 통합'] }
+      }
+    };
+
+    // === HELPER: get category info for a project ===
+    function getCat(projectNum) {
+      for (var i = 0; i < DATA.categories.length; i++) {
+        if (DATA.categories[i].projects.indexOf(projectNum) !== -1) return DATA.categories[i];
+      }
+      return DATA.categories[0];
+    }
+
+    // === RENDER HERO TITLE ===
+    function renderHeroTitle() {
+      var title = 'Next Channel';
+      var h1 = document.getElementById('heroTitle');
+      var html = '<span style="color:var(--accent);animation-delay:0s">S</span><span style="color:var(--accent);animation-delay:0.05s">K</span><span style="color:var(--accent);animation-delay:0.1s">T</span><span style="animation-delay:0.15s">&nbsp;</span>';
+      for (var i = 0; i < title.length; i++) {
+        var ch = title[i] === ' ' ? '&nbsp;' : title[i];
+        html += '<span style="animation-delay:' + (0.2 + i * 0.05) + 's">' + ch + '</span>';
+      }
+      h1.innerHTML = html;
+    }
+
+    // === RENDER PARTICLES ===
+    function renderParticles() {
+      var container = document.getElementById('heroParticles');
+      var html = '';
+      for (var i = 0; i < 30; i++) {
+        var x = Math.random() * 100, y = Math.random() * 100;
+        var tx = (Math.random() - 0.5) * 200 + 'px', ty = (Math.random() - 0.5) * 200 + 'px';
+        var dur = 6 + Math.random() * 10, delay = Math.random() * 8;
+        var size = 2 + Math.random() * 4;
+        html += '<div class="hero-particle" style="left:' + x + '%;top:' + y + '%;width:' + size + 'px;height:' + size + 'px;--tx:' + tx + ';--ty:' + ty + ';animation-duration:' + dur + 's;animation-delay:' + delay + 's"></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    // === RENDER JOURNEY ===
+    function renderJourney() {
+      var track = document.getElementById('journeyTrack');
+      var html = '<div class="journey-line"><div class="journey-line-fill" id="journeyFill"></div></div>';
+      DATA.journeyStages.forEach(function(stage, idx) {
+        html += '<div class="journey-stage">';
+        html += '<div class="journey-node" data-stage="' + idx + '"></div>';
+        html += '<div class="journey-stage-name">' + stage.name + '</div>';
+        html += '<div class="journey-badges">';
+        stage.projects.forEach(function(p) {
+          var cat = getCat(p);
+          html += '<button class="journey-badge" style="background:' + cat.color + ';color:white" onclick="navigateTo(\'project-' + p + '\')" title="' + DATA.projects[p].title + '">#' + p + '</button>';
+        });
+        html += '</div></div>';
+      });
+      track.innerHTML = html;
+    }
+
+    // === RENDER VALUES ===
+    function renderValues() {
+      var grid = document.getElementById('valuesGrid');
+      var html = '';
+      DATA.values.forEach(function(v, idx) {
+        html += '<div class="value-card reveal" style="transition-delay:' + (idx * 0.1) + 's">';
+        html += '<div class="value-icon" style="background:rgba(59,130,246,0.1)">' + v.icon + '</div>';
+        html += '<h4>' + v.name + '</h4>';
+        html += '<p>' + v.desc + '</p>';
+        html += '<div class="value-projects">';
+        v.projects.forEach(function(p) {
+          html += '<span class="value-tag">#' + p + '</span>';
+        });
+        html += '</div></div>';
+      });
+      grid.innerHTML = html;
+    }
+
+    // === RENDER COMPARISONS ===
+    function renderComparisons() {
+      var grid = document.getElementById('comparisonGrid');
+      var html = '';
+      DATA.comparisons.forEach(function(c, idx) {
+        html += '<div class="comparison-row reveal" style="transition-delay:' + (idx * 0.1) + 's">';
+        html += '<div class="comparison-asis">';
+        html += '<div class="comparison-category" style="background:' + c.color + '20;color:' + c.color + '">' + c.catName + '</div>';
+        html += '<div class="comparison-text">' + c.asis + '</div>';
+        html += '</div>';
+        html += '<div class="comparison-arrow">→</div>';
+        html += '<div class="comparison-tobe">';
+        html += '<div class="comparison-category" style="background:' + c.color + '20;color:' + c.color + '">' + c.catName + '</div>';
+        html += '<div class="comparison-text">' + c.tobe + '</div>';
+        html += '</div></div>';
+      });
+      grid.innerHTML = html;
+    }
+
+    // === RENDER PROJECT CARDS ===
+    function renderProjectCards() {
+      var grid = document.getElementById('projectsGrid');
+      var html = '';
+      var order = [1,2,8,7,4,5,3,11,6,9,10,12];
+      order.forEach(function(num, idx) {
+        var p = DATA.projects[num];
+        var cat = getCat(num);
+        html += '<div class="project-card reveal" style="transition-delay:' + (idx * 0.05) + 's" onclick="navigateTo(\'project-' + num + '\')">';
+        html += '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:' + cat.color + '"></div>';
+        html += '<div class="project-card-header">';
+        html += '<div class="project-num" style="background:' + cat.color + '">#' + num + '</div>';
+        html += '<h4>' + p.title + '</h4>';
+        html += '</div>';
+        html += '<p class="project-card-purpose">' + p.purpose[0].substring(0, 80) + '…</p>';
+        html += '<div class="project-tags">';
+        p.features.slice(0, 3).forEach(function(f) {
+          html += '<span class="project-tag">' + f.split(' ')[0] + '</span>';
+        });
+        html += '</div>';
+        html += '<div class="project-card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
+        html += '</div>';
+      });
+      grid.innerHTML = html;
+    }
+
+    // === RENDER DEPENDENCY DIAGRAM ===
+    function renderDependency() {
+      var diagram = document.getElementById('depDiagram');
+      var html = '';
+      // Layer 1: AI overlay
+      html += '<div class="dep-layer reveal"><div class="dep-layer-label">AI 오버레이</div>';
+      html += '<div class="dep-node" style="border-color:#6C5CE7;min-width:300px" onclick="navigateTo(\'project-1\')">';
+      html += '<span style="color:#6C5CE7;font-weight:800">#1</span> AI 기반 탐색·추천 — 전 영역 적용</div></div>';
+      // Arrow
+      html += '<div class="dep-connector reveal">↕</div>';
+      // Layer 2: Core journey
+      html += '<div class="dep-layer reveal" style="transition-delay:0.1s">';
+      html += '<div class="dep-layer-label">핵심 여정</div>';
+      var core = [
+        { num: 2, short: '상품 선택' },
+        { num: 8, short: '주문 프로세스' },
+        { num: 7, short: '사후관리' },
+        { num: 4, short: '요금 관리' },
+        { num: 5, short: '결제' },
+        { num: 6, short: '고객지원' }
+      ];
+      core.forEach(function(c) {
+        var cat = getCat(c.num);
+        html += '<div class="dep-node" style="border-color:' + cat.color + '" onclick="navigateTo(\'project-' + c.num + '\')">';
+        html += '<span style="color:' + cat.color + ';font-weight:800">#' + c.num + '</span> ' + c.short + '</div>';
+      });
+      html += '</div>';
+      // Arrow
+      html += '<div class="dep-connector reveal" style="transition-delay:0.2s">↕</div>';
+      // Layer 3: Service layer
+      html += '<div class="dep-layer reveal" style="transition-delay:0.2s">';
+      html += '<div class="dep-layer-label">서비스 레이어</div>';
+      var svc = [
+        { num: 3, short: '계약·가입 관리' },
+        { num: 11, short: '서비스 이용' },
+        { num: 10, short: '이벤트·멤버십' }
+      ];
+      svc.forEach(function(c) {
+        var cat = getCat(c.num);
+        html += '<div class="dep-node" style="border-color:' + cat.color + '" onclick="navigateTo(\'project-' + c.num + '\')">';
+        html += '<span style="color:' + cat.color + ';font-weight:800">#' + c.num + '</span> ' + c.short + '</div>';
+      });
+      html += '</div>';
+      // Arrow
+      html += '<div class="dep-connector reveal" style="transition-delay:0.3s">↕</div>';
+      // Layer 4: Foundation
+      html += '<div class="dep-layer reveal" style="transition-delay:0.3s">';
+      html += '<div class="dep-layer-label">기반 인프라</div>';
+      var found = [
+        { num: 9, short: '전시 구조' },
+        { num: 12, short: '회원·계정·인증' }
+      ];
+      found.forEach(function(c) {
+        var cat = getCat(c.num);
+        html += '<div class="dep-node" style="border-color:' + cat.color + ';background:rgba(99,110,114,0.08)" onclick="navigateTo(\'project-' + c.num + '\')">';
+        html += '<span style="color:' + cat.color + ';font-weight:800">#' + c.num + '</span> ' + c.short + ' (기반)</div>';
+      });
+      html += '</div>';
+      diagram.innerHTML = html;
+    }
+
+    // === RENDER FOOTER LINKS ===
+    function renderFooter() {
+      var links = document.getElementById('footerLinks');
+      var html = '';
+      for (var i = 1; i <= 12; i++) {
+        html += '<button class="footer-link" onclick="navigateTo(\'project-' + i + '\')">#' + i + ' ' + DATA.projects[i].title.split(' ').slice(0, 3).join(' ') + '</button>';
+      }
+      links.innerHTML = html;
+    }
+
+    // === RENDER DETAIL PAGES ===
+    function renderDetailPages() {
+      var container = document.getElementById('detailPages');
+      var html = '';
+      for (var num = 1; num <= 12; num++) {
+        var p = DATA.projects[num];
+        var cat = getCat(num);
+        html += '<div class="page" id="page-project-' + num + '">';
+        // Hero
+        html += '<section class="detail-hero" style="background:linear-gradient(135deg,' + cat.color + '08,' + cat.color + '03)" aria-label="과제 개요">';
+        html += '<div class="container">';
+        html += '<div class="detail-breadcrumb animate"><button onclick="navigateTo(\'landing\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> 전체 과제</button><span>/</span><span>' + p.title + '</span></div>';
+        html += '<div class="detail-meta animate delay-1">';
+        html += '<div class="detail-badge" style="background:' + cat.color + ';color:white"><span style="font-weight:800">#' + num + '</span> ' + cat.name + '</div>';
+        html += '<span class="detail-docid">' + p.docId + '</span></div>';
+        html += '<h1 class="detail-title animate delay-2" style="font-size:clamp(1.8rem,4vw,2.8rem)">' + p.title + '</h1>';
+        html += '<ul class="detail-purpose-list animate delay-3">';
+        p.purpose.forEach(function(pp) {
+          html += '<li><span style="flex-shrink:0;width:8px;height:8px;border-radius:50%;margin-top:8px;background:' + cat.color + '"></span>' + pp + '</li>';
+        });
+        html += '</ul></div></section>';
+
+        // Current State & Pain Points
+        html += '<section class="detail-section" data-reveal aria-label="문제 정의">';
+        html += '<div class="container">';
+        html += '<div class="detail-section-header"><div class="detail-section-icon" style="background:rgba(244,63,94,0.1);color:var(--negative)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div><h3>문제 정의</h3></div>';
+        html += '<div class="detail-cards">';
+        // Current State
+        html += '<div class="detail-card status-card problem"><h5>현 상태</h5><ul>';
+        p.currentState.forEach(function(s) { html += '<li>' + s + '</li>'; });
+        html += '</ul></div>';
+        // Pain Points
+        html += '<div class="detail-card status-card problem"><h5>Pain Points</h5><ul>';
+        p.painPoints.forEach(function(s) { html += '<li>' + s + '</li>'; });
+        html += '</ul></div>';
+        // Root Cause
+        html += '<div class="detail-card status-card cause"><h5>Root Cause</h5><ul>';
+        p.rootCause.forEach(function(s) { html += '<li>' + s + '</li>'; });
+        html += '</ul></div>';
+        html += '</div></div></section>';
+
+        // Features
+        html += '<section class="detail-section" data-reveal aria-label="핵심 기능">';
+        html += '<div class="container">';
+        html += '<div class="detail-section-header"><div class="detail-section-icon" style="background:rgba(16,185,129,0.1);color:var(--positive)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><h3>핵심 기능 / 솔루션</h3></div>';
+        html += '<div class="detail-cards">';
+        p.features.forEach(function(f, fi) {
+          html += '<div class="detail-card feature-card" style="transition-delay:' + (fi * 0.05) + 's"><h5>' + f + '</h5></div>';
+        });
+        html += '</div></div></section>';
+
+        // Related Projects
+        html += '<section class="detail-section" data-reveal aria-label="관련 과제">';
+        html += '<div class="container">';
+        html += '<div class="detail-section-header"><div class="detail-section-icon" style="background:rgba(59,130,246,0.1);color:var(--accent)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div><h3>관련 과제</h3></div>';
+        html += '<div class="related-projects">';
+        p.related.forEach(function(r) {
+          var rc = getCat(r);
+          html += '<button class="related-project-btn" onclick="navigateTo(\'project-' + r + '\')">';
+          html += '<span class="related-project-num" style="background:' + rc.color + '">#' + r + '</span>';
+          html += DATA.projects[r].title + '</button>';
+        });
+        html += '</div></div></section>';
+
+        // Strategic Values
+        html += '<section class="detail-section" data-reveal aria-label="전략 가치">';
+        html += '<div class="container">';
+        html += '<div class="detail-section-header"><div class="detail-section-icon" style="background:rgba(139,92,246,0.1);color:var(--accent-secondary)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3>전략 가치 정렬</h3></div>';
+        html += '<div class="value-badges">';
+        p.values.forEach(function(v) {
+          var vObj = DATA.values.find(function(vv) { return vv.name === v; });
+          var icon = vObj ? vObj.icon : '✦';
+          html += '<span class="value-badge-item">' + icon + ' ' + v + '</span>';
+        });
+        html += '</div></div></section>';
+
+        // Back button
+        html += '<div style="padding:40px 0 80px;text-align:center">';
+        html += '<button class="related-project-btn" onclick="navigateTo(\'landing\')" style="display:inline-flex">';
+        html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>';
+        html += '전체 과제로 돌아가기</button></div>';
+
+        html += '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    // === NAVIGATION ===
+    var currentPage = 'landing';
+
+    function navigateTo(pageId) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+      // Show target
+      var target = document.getElementById('page-' + pageId);
+      if (target) {
+        target.classList.add('active');
+        target.classList.add('page-enter');
+        setTimeout(function() { target.classList.remove('page-enter'); }, 600);
+      }
+      currentPage = pageId;
+      // Nav bar
+      var nav = document.getElementById('navBar');
+      if (pageId === 'landing') {
+        nav.classList.remove('visible');
+      } else {
+        nav.classList.add('visible');
+        var num = parseInt(pageId.replace('project-', ''));
+        document.getElementById('navTitle').textContent = '#' + num + ' ' + DATA.projects[num].title;
+      }
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Update hash
+      history.pushState(null, '', '#' + pageId);
+      // Re-init reveals for new page
+      setTimeout(initReveals, 100);
+    }
+
+    // Handle hash navigation
+    function handleHash() {
+      var hash = location.hash.replace('#', '') || 'landing';
+      navigateTo(hash);
+    }
+
+    // === SCROLL REVEAL ===
+    function initReveals() {
+      var revealEls = document.querySelectorAll('[data-reveal]:not(.reveal)');
+      revealEls.forEach(function(el) { el.classList.add('reveal'); });
+      document.querySelectorAll('.reveal:not(.visible)').forEach(function(el) {
+        revealObserver.observe(el);
+      });
+    }
+
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          // Stagger children with reveal class
+          var children = e.target.querySelectorAll('.reveal');
+          children.forEach(function(c, i) {
+            setTimeout(function() { c.classList.add('visible'); }, i * 100);
+          });
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    // === JOURNEY ANIMATION ===
+    function animateJourney() {
+      var fill = document.getElementById('journeyFill');
+      if (fill) fill.style.width = '100%';
+      var nodes = document.querySelectorAll('.journey-node');
+      nodes.forEach(function(n, i) {
+        setTimeout(function() { n.classList.add('active'); }, i * 200);
+      });
+    }
+    var journeyObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { animateJourney(); journeyObserver.disconnect(); }
+      });
+    }, { threshold: 0.2 });
+
+    // === NUMBER COUNTERS ===
+    function animateCounters() {
+      document.querySelectorAll('[data-count]').forEach(function(el) {
+        if (el.dataset.counted) return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.dataset.count);
+        var suffix = el.dataset.suffix || '';
+        var prefix = el.dataset.prefix || '';
+        var start = performance.now(), duration = 1200;
+        (function tick(now) {
+          var p = Math.min((now - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = prefix + Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        })(start);
+      });
+    }
+    var counterEl = document.querySelector('[data-count]');
+    if (counterEl) {
+      var cObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) { animateCounters(); cObs.disconnect(); } });
+      }, { threshold: 0.3 });
+      cObs.observe(counterEl);
+    }
+
+    // === MENU ===
+    function toggleMenu() {
+      var dropdown = document.getElementById('vizMenuDropdown');
+      if (dropdown) dropdown.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.viz-menu')) {
+        var dropdown = document.getElementById('vizMenuDropdown');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        var dropdown = document.getElementById('vizMenuDropdown');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+    });
+
+    // === THEME ===
+    var savedTheme = localStorage.getItem('viz-theme');
+    var currentTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    function applyTheme(t) {
+      document.documentElement.className = 'theme-' + t;
+      document.getElementById('themeIcon').textContent = t === 'dark' ? '🌙' : '☀️';
+      document.getElementById('themeLabel').textContent = t === 'dark' ? 'Dark' : 'Light';
+      localStorage.setItem('viz-theme', t);
+      currentTheme = t;
+      if (typeof onThemeChange === 'function') onThemeChange();
+    }
+    function cycleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+    applyTheme(currentTheme);
+
+    function onThemeChange() { /* no charts to rebuild */ }
+
+    // === DOWNLOAD PNG ===
+    async function downloadImage() {
+      var menu = document.querySelector('.viz-menu');
+      menu.style.display = 'none';
+      try {
+        var url = await htmlToImage.toPng(document.body, { quality: 1, pixelRatio: 2, filter: function(n) { return !n.classList || !n.classList.contains('viz-menu'); } });
+        var a = document.createElement('a'); a.href = url;
+        a.download = 'skt-next-channel-' + currentPage + '.png'; a.click();
+      } catch(e) { console.error('Download failed:', e); }
+      menu.style.display = '';
+    }
+
+    // === BACK BUTTON ===
+    window.addEventListener('popstate', handleHash);
+
+    // === INIT ===
+    document.addEventListener('DOMContentLoaded', function() {
+      renderHeroTitle();
+      renderParticles();
+      renderJourney();
+      renderValues();
+      renderComparisons();
+      renderProjectCards();
+      renderDependency();
+      renderFooter();
+      renderDetailPages();
+      initReveals();
+
+      // Observe journey for animation
+      var journeySection = document.querySelector('.journey');
+      if (journeySection) journeyObserver.observe(journeySection);
+
+      // Handle initial hash
+      if (location.hash) {
+        setTimeout(handleHash, 100);
+      }
+    });
+  </script>
+</body>
+</html>
