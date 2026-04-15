@@ -94,6 +94,91 @@
     .reveal.slide-right { transform: translateX(40px); }
     .reveal.slide-right.visible { transform: translateX(0); }
 
+    /* Tilt on mouse move (cards) */
+    .tilt-card { transition: transform 0.15s ease-out; transform-style: preserve-3d; }
+
+    /* Glow on hover for journey badges */
+    @keyframes glowPulse {
+      0%,100% { box-shadow: 0 0 4px rgba(59,130,246,0.3); }
+      50% { box-shadow: 0 0 16px rgba(59,130,246,0.6); }
+    }
+    .journey-badge:hover { animation: glowPulse 1s ease-in-out infinite; }
+
+    /* Typing cursor for hero subtitle */
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    .typing-cursor::after {
+      content: '|'; animation: blink 1s step-end infinite; color: var(--accent); margin-left: 2px;
+    }
+
+    /* Progress bar at top on scroll */
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; z-index: 9995;
+      background: linear-gradient(90deg, #6C5CE7, #00B894, #0984E3, #E17055);
+      width: 0%; transition: width 0.1s linear; pointer-events: none;
+    }
+
+    /* Magnetic hover effect on dep-nodes */
+    .dep-node { transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .dep-node:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+    }
+
+    /* Shimmer effect on section labels */
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .section-label {
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-secondary) 50%, var(--accent) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    /* Comparison row hover highlight */
+    .comparison-row { transition: transform 0.3s, box-shadow 0.3s; }
+    .comparison-row:hover {
+      transform: scale(1.01);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    /* Value icon bounce on hover */
+    @keyframes iconBounce {
+      0%,100% { transform: scale(1); }
+      30% { transform: scale(1.2); }
+      60% { transform: scale(0.95); }
+    }
+    .value-card:hover .value-icon { animation: iconBounce 0.5s ease-out; }
+
+    /* Stagger children in detail cards */
+    .detail-cards > * { opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s; }
+    .detail-cards.animated > * { opacity: 1; transform: translateY(0); }
+    .detail-cards.animated > *:nth-child(1) { transition-delay: 0s; }
+    .detail-cards.animated > *:nth-child(2) { transition-delay: 0.08s; }
+    .detail-cards.animated > *:nth-child(3) { transition-delay: 0.16s; }
+    .detail-cards.animated > *:nth-child(4) { transition-delay: 0.24s; }
+    .detail-cards.animated > *:nth-child(5) { transition-delay: 0.32s; }
+    .detail-cards.animated > *:nth-child(6) { transition-delay: 0.4s; }
+    .detail-cards.animated > *:nth-child(7) { transition-delay: 0.48s; }
+    .detail-cards.animated > *:nth-child(8) { transition-delay: 0.56s; }
+    .detail-cards.animated > *:nth-child(9) { transition-delay: 0.64s; }
+    .detail-cards.animated > *:nth-child(10) { transition-delay: 0.72s; }
+    .detail-cards.animated > *:nth-child(11) { transition-delay: 0.8s; }
+
+    /* Feature card border shimmer on hover */
+    .feature-card { position: relative; overflow: hidden; }
+    .feature-card::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(16,185,129,0.08), transparent);
+      transition: left 0.5s;
+    }
+    .feature-card:hover::after { left: 150%; }
+
+    /* Hero badge pulse */
+    .hero-badge { animation: fadeInUp 0.6s ease-out both, glowPulse 3s ease-in-out 1s infinite; }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
       .reveal { opacity: 1; transform: none; }
@@ -558,6 +643,7 @@
   </style>
 </head>
 <body>
+  <div class="scroll-progress" id="scrollProgress"></div>
   <a href="#main-content" class="skip-link">Skip to content</a>
 
   <!-- MENU -->
@@ -1375,8 +1461,8 @@
       }
       // Update hash
       history.pushState(null, '', '#' + pageId);
-      // Re-init reveals for new page
-      setTimeout(initReveals, 100);
+      // Re-init reveals and detail card animations for new page
+      setTimeout(function() { initReveals(); observeDetailCards(); }, 100);
     }
 
     // Handle hash navigation
@@ -1493,6 +1579,59 @@
       } catch(e) { console.error('Download failed:', e); }
       menu.style.display = '';
     }
+
+    // === SCROLL PROGRESS BAR ===
+    window.addEventListener('scroll', function() {
+      var scrollTop = window.scrollY;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      var bar = document.getElementById('scrollProgress');
+      if (bar) bar.style.width = progress + '%';
+    }, { passive: true });
+
+    // === TILT EFFECT ON PROJECT CARDS ===
+    document.addEventListener('mousemove', function(e) {
+      var cards = document.querySelectorAll('.project-card');
+      cards.forEach(function(card) {
+        var rect = card.getBoundingClientRect();
+        var isHovered = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+        if (isHovered) {
+          var x = (e.clientX - rect.left) / rect.width - 0.5;
+          var y = (e.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform = 'translateY(-6px) perspective(600px) rotateY(' + (x * 8) + 'deg) rotateX(' + (-y * 8) + 'deg)';
+        } else {
+          card.style.transform = '';
+        }
+      });
+    }, { passive: true });
+
+    // === DETAIL CARDS STAGGER ANIMATION ON SCROLL ===
+    var detailCardObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('animated');
+          detailCardObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    function observeDetailCards() {
+      document.querySelectorAll('.detail-cards').forEach(function(el) {
+        detailCardObserver.observe(el);
+      });
+    }
+
+    // === PARALLAX ON HERO ===
+    window.addEventListener('scroll', function() {
+      var hero = document.querySelector('.hero-content');
+      if (hero && currentPage === 'landing') {
+        var scroll = window.scrollY;
+        if (scroll < window.innerHeight) {
+          hero.style.transform = 'translateY(' + (scroll * 0.25) + 'px)';
+          hero.style.opacity = 1 - (scroll / window.innerHeight) * 0.6;
+        }
+      }
+    }, { passive: true });
 
     // === BACK BUTTON ===
     window.addEventListener('popstate', handleHash);
