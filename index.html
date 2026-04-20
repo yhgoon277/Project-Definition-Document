@@ -601,6 +601,34 @@
       font-size: 13px; font-weight: 500;
     }
 
+    /* ===== PROTOTYPE SECTION (Claude Design iframe) ===== */
+    .prototype-section-sub {
+      display: inline-block; margin-left: 10px;
+      font-size: 12px; font-weight: 500; color: var(--text-muted, rgba(255,255,255,0.5));
+      letter-spacing: 0.04em;
+    }
+    .prototype-frame-wrap {
+      position: relative; margin-top: 8px;
+      background: transparent;
+      border-radius: 16px; overflow: hidden;
+    }
+    .prototype-frame-iframe {
+      display: block; width: 100%; min-height: 600px;
+      border: 0; background: transparent;
+      color-scheme: normal;
+      transition: height 0.25s ease;
+    }
+    .prototype-placeholder {
+      margin-top: 8px; padding: 48px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      text-align: center; opacity: 0.55;
+      background: var(--glass); border-radius: 16px;
+      border: 1px dashed var(--border);
+    }
+    .prototype-placeholder-icon { opacity: 0.8; }
+    .prototype-placeholder-title { font-size: 16px; font-weight: 600; }
+    .prototype-placeholder-desc { font-size: 13px; color: var(--text-muted, rgba(255,255,255,0.5)); }
+
     /* ===== PAGE TRANSITION ===== */
     @keyframes slideInFromRight {
       from { opacity: 0; transform: translateX(60px); }
@@ -910,7 +938,8 @@
             { name: '예외 해결', funcs: ['미납 해결 가이드', '자동납부 실패 복구', '이중 납부 확인/환불', '분쟁 접수 및 처리 상태 조회', '상담 연결'] },
             { name: '완료·후속', funcs: ['납부 완료 확인', '변경 적용 결과 안내', '다음 달 예상 안내', '관련 업무 추천'] }
           ],
-          related: [5, 3], values: ['셀프완결', '신뢰 기반 설계'] },
+          related: [5, 3], values: ['셀프완결', '신뢰 기반 설계'],
+          prototypeUrl: 'prototypes/4-billing.html' },
         5: { title: '결제 효율화 체계 구축', docId: 'TK-CH-PAY', cat: 'billing',
           purpose: ['고객이 복잡한 금액/청구 구조를 직관적으로 이해하고 결제까지 완료할 수 있도록 결제 경험을 단순화 및 표준화'],
           currentState: ['결제 금액·수단·고객정보가 상품/채널별로 상이하게 운영', '간편결제 연동 제한적', '채널 간 결제 UX 불일치'],
@@ -1388,6 +1417,23 @@
         });
         html += '</div></div></section>';
 
+        // Prototype (AS-IS ↔ TO-BE)
+        html += '<section class="detail-section prototype-section" data-reveal aria-label="프로토타입">';
+        html += '<div class="container">';
+        html += '<div class="detail-section-header"><div class="detail-section-icon" style="background:' + cat.color + '20;color:' + cat.color + '"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div><h3>프로토타입 <span class="prototype-section-sub">AS-IS ↔ TO-BE 비교</span></h3></div>';
+        if (p.prototypeUrl) {
+          html += '<div class="prototype-frame-wrap">';
+          html += '<iframe class="prototype-frame-iframe" src="' + p.prototypeUrl + '?embed=1" data-project="' + num + '" title="#' + num + ' 프로토타입" loading="lazy"></iframe>';
+          html += '</div>';
+        } else {
+          html += '<div class="prototype-placeholder" style="border-color:' + cat.color + '40">';
+          html += '<div class="prototype-placeholder-icon" style="color:' + cat.color + '"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg></div>';
+          html += '<div class="prototype-placeholder-title">프로토타입 준비 중</div>';
+          html += '<div class="prototype-placeholder-desc">이 과제의 AS-IS ↔ TO-BE 프로토타입은 곧 공개됩니다.</div>';
+          html += '</div>';
+        }
+        html += '</div></section>';
+
         // Strategic Values
         html += '<section class="detail-section" data-reveal aria-label="전략 가치">';
         html += '<div class="container">';
@@ -1565,7 +1611,9 @@
     function cycleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
     applyTheme(currentTheme);
 
-    function onThemeChange() { /* no charts to rebuild */ }
+    function onThemeChange() {
+      if (typeof broadcastThemeToProtos === 'function') broadcastThemeToProtos();
+    }
 
     // === DOWNLOAD PNG ===
     async function downloadImage() {
@@ -1634,6 +1682,26 @@
 
     // === BACK BUTTON ===
     window.addEventListener('popstate', handleHash);
+
+    // === PROTOTYPE IFRAME SYNC (Claude Design embed: height + theme) ===
+    function broadcastThemeToProtos() {
+      var iframes = document.querySelectorAll('iframe.prototype-frame-iframe');
+      iframes.forEach(function(f) {
+        try { f.contentWindow.postMessage({ type: 'theme', theme: currentTheme }, '*'); } catch(_) {}
+      });
+    }
+    window.addEventListener('message', function(e) {
+      if (!e.data) return;
+      if (e.data.type === 'proto-height') {
+        var h = e.data.h; if (!h || h < 100) return;
+        var iframes = document.querySelectorAll('iframe.prototype-frame-iframe');
+        iframes.forEach(function(f) {
+          if (f.contentWindow === e.source) f.style.height = (h + 24) + 'px';
+        });
+      } else if (e.data.type === 'proto-ready') {
+        try { e.source.postMessage({ type: 'theme', theme: currentTheme }, '*'); } catch(_) {}
+      }
+    });
 
     // === INIT ===
     document.addEventListener('DOMContentLoaded', function() {

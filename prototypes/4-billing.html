@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SKT 요금 납부·관리 — AS-IS ↔ TO-BE 비교</title>
+<style>
+/* ============================================================
+   Montage (WDS) — Colors & Type tokens
+   Wanted Lab Design System for Web
+   ============================================================ */
+@import url("https://static.wanted.co.kr/fonts/wantedsans/WantedSansVariable.min.css");
+@import url("https://static.wanted.co.kr/fonts/pretendard/pretendard/pretendardvariable-dynamic-subset.min.css");
+@import url("https://static.wanted.co.kr/fonts/pretendard/pretendard-jp/pretendardvariable-jp-dynamic-subset.min.css");
+
+:root {
+  --font-family-wanted-sans: "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-family-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-family-base: var(--font-family-pretendard);
+  --font-family-display: var(--font-family-wanted-sans);
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --common-white: #ffffff;
+  --common-black: #000000;
+
+  --blue-10:#001536; --blue-20:#002966; --blue-30:#003E9C; --blue-40:#0054D1;
+  --blue-45:#005EEB; --blue-50:#0066FF; --blue-55:#1A75FF; --blue-60:#3385FF;
+  --blue-65:#4F95FF; --blue-70:#69A5FF; --blue-80:#9EC5FF; --blue-90:#C9DEFE;
+  --blue-95:#EAF2FE; --blue-99:#F7FBFF;
+
+  --coolNeutral-5:#0F0F10; --coolNeutral-7:#141415; --coolNeutral-10:#171719;
+  --coolNeutral-15:#1B1C1E; --coolNeutral-17:#212225; --coolNeutral-20:#292A2D;
+  --coolNeutral-22:#2E2F33; --coolNeutral-23:#333438; --coolNeutral-25:#37383C;
+  --coolNeutral-30:#46474C; --coolNeutral-40:#5A5C63; --coolNeutral-50:#70737C;
+  --coolNeutral-60:#878A93; --coolNeutral-70:#989BA2; --coolNeutral-80:#AEB0B6;
+  --coolNeutral-90:#C2C4C8; --coolNeutral-95:#DBDCDF; --coolNeutral-96:#E1E2E4;
+  --coolNeutral-97:#EAEBEC; --coolNeutral-98:#F4F4F5; --coolNeutral-99:#F7F7F8;
+
+  --neutral-5:#0F0F0F; --neutral-10:#171717; --neutral-15:#1C1C1C;
+  --neutral-20:#2A2A2A; --neutral-22:#303030; --neutral-30:#474747;
+  --neutral-40:#5C5C5C; --neutral-50:#737373; --neutral-60:#8A8A8A;
+  --neutral-70:#9B9B9B; --neutral-80:#B0B0B0; --neutral-90:#C4C4C4;
+  --neutral-95:#DCDCDC; --neutral-99:#F7F7F7;
+
+  --red-40:#E52222; --red-50:#FF4242; --red-60:#FF6363;
+  --green-40:#009632; --green-50:#00BF40; --green-60:#1ED45A;
+  --orange-39:#D17600; --orange-50:#FF9200; --orange-60:#FFA938;
+
+  --redOrange-48:#F55A00; --redOrange-50:#FF5E00; --redOrange-60:#FF7B2E;
+  --lime-37:#429E00; --lime-50:#58CF04; --lime-60:#6BE016;
+  --cyan-40:#0098B2; --cyan-50:#00BDDE; --cyan-60:#28D0ED;
+  --lightBlue-40:#008DCF; --lightBlue-50:#00AEFF; --lightBlue-60:#3DC2FF;
+  --violet-45:#5B37ED; --violet-50:#6541F2; --violet-60:#7D5EF7; --violet-70:#9E86FC;
+  --purple-40:#AD36E3; --purple-50:#CB59FF; --purple-60:#D478FF;
+  --pink-46:#E846CD; --pink-50:#F553DA; --pink-60:#FA73E3;
+
+  --static-white: #ffffff;
+  --static-black: #000000;
+
+  --primary-normal: var(--blue-50);
+  --primary-strong: var(--blue-45);
+  --primary-heavy:  var(--blue-40);
+
+  --label-normal:      var(--coolNeutral-10);
+  --label-strong:      #000000;
+  --label-neutral:     rgba(46, 47, 51, 0.88);
+  --label-alternative: rgba(55, 56, 60, 0.61);
+  --label-assistive:   rgba(55, 56, 60, 0.28);
+  --label-disable:     rgba(55, 56, 60, 0.16);
+
+  --background-normal-normal:           #ffffff;
+  --background-normal-alternative:      var(--coolNeutral-99);
+  --background-elevated-normal:         #ffffff;
+  --background-elevated-alternative:    var(--coolNeutral-99);
+  --background-transparent-normal:      rgba(255,255,255,0.08);
+  --background-transparent-alternative: rgba(255,255,255,0.28);
+
+  --interaction-inactive: var(--coolNeutral-70);
+  --interaction-disable:  var(--coolNeutral-98);
+
+  --line-normal-normal:      rgba(112, 115, 124, 0.22);
+  --line-normal-neutral:     rgba(112, 115, 124, 0.16);
+  --line-normal-alternative: rgba(112, 115, 124, 0.08);
+  --line-solid-normal:       var(--coolNeutral-96);
+  --line-solid-neutral:      var(--coolNeutral-97);
+  --line-solid-alternative:  var(--coolNeutral-98);
+
+  --status-positive:   var(--green-50);
+  --status-cautionary: var(--orange-50);
+  --status-negative:   var(--red-50);
+
+  --fill-normal:      rgba(112, 115, 124, 0.08);
+  --fill-strong:      rgba(112, 115, 124, 0.16);
+  --fill-alternative: rgba(112, 115, 124, 0.05);
+
+  --material-dimmer: rgba(23, 23, 25, 0.52);
+
+  --inverse-primary:    var(--blue-60);
+  --inverse-background: var(--coolNeutral-15);
+  --inverse-label:      var(--coolNeutral-99);
+
+  --accent-fg-red:       var(--red-40);
+  --accent-fg-redOrange: var(--redOrange-48);
+  --accent-fg-orange:    var(--orange-39);
+  --accent-fg-lime:      var(--lime-37);
+  --accent-fg-green:     var(--green-40);
+  --accent-fg-cyan:      var(--cyan-40);
+  --accent-fg-lightBlue: var(--lightBlue-40);
+  --accent-fg-blue:      var(--blue-45);
+  --accent-fg-violet:    var(--violet-45);
+  --accent-fg-purple:    var(--purple-40);
+  --accent-fg-pink:      var(--pink-46);
+
+  --accent-bg-redOrange: var(--redOrange-50);
+  --accent-bg-lime:      var(--lime-50);
+  --accent-bg-cyan:      var(--cyan-50);
+  --accent-bg-lightBlue: var(--lightBlue-50);
+  --accent-bg-violet:    var(--violet-50);
+  --accent-bg-purple:    var(--purple-50);
+  --accent-bg-pink:      var(--pink-50);
+
+  --shadow-xsmall: 0px 1px 2px -1px rgba(23,23,23,0.10);
+  --shadow-small:  0px 2px 4px -2px rgba(23,23,23,0.06), 0px 4px 6px -1px rgba(23,23,23,0.06);
+  --shadow-medium: 0px 4px 6px -2px rgba(23,23,23,0.07), 0px 10px 15px -3px rgba(23,23,23,0.07);
+  --shadow-large:  0px 6px 10px -4px rgba(23,23,23,0.08), 0px 16px 24px -6px rgba(23,23,23,0.08);
+  --shadow-xlarge: 0px 10px 15px -5px rgba(23,23,23,0.10), 0px 24px 38px -10px rgba(23,23,23,0.12);
+  --shadow-spread-small:  0px 0px 60px 0px rgba(23,23,23,0.10);
+  --shadow-spread-medium: 0px 15px 75px 0px rgba(23,23,23,0.16);
+
+  --space-0: 0px;   --space-0_5: 0.5px; --space-1: 1px;  --space-2: 2px;
+  --space-4: 4px;   --space-6: 6px;     --space-8: 8px;  --space-10: 10px;
+  --space-12: 12px; --space-14: 14px;   --space-16: 16px;
+  --space-20: 20px; --space-24: 24px;   --space-32: 32px;
+  --space-40: 40px; --space-48: 48px;   --space-56: 56px;
+  --space-64: 64px; --space-72: 72px;   --space-80: 80px;
+
+  --radius-4: 4px;   --radius-6: 6px;   --radius-8: 8px;
+  --radius-10: 10px; --radius-12: 12px; --radius-16: 16px;
+  --radius-20: 20px; --radius-pill: 9999px;
+
+  --bp-xs: 0px; --bp-sm: 768px; --bp-md: 992px; --bp-lg: 1200px; --bp-xl: 1600px;
+
+  --opacity-5:.05; --opacity-8:.08; --opacity-12:.12; --opacity-16:.16;
+  --opacity-22:.22; --opacity-28:.28; --opacity-35:.35; --opacity-43:.43;
+  --opacity-52:.52; --opacity-61:.61; --opacity-74:.74; --opacity-88:.88;
+  --opacity-97:.97;
+
+  --fs-display1: 3.5rem;    --lh-display1: 4.5rem;    --ls-display1: -0.0319em;
+  --fs-display2: 2.5rem;    --lh-display2: 3.25rem;   --ls-display2: -0.0282em;
+  --fs-display3: 2.25rem;   --lh-display3: 3rem;      --ls-display3: -0.0270em;
+  --fs-title1:   2rem;      --lh-title1:   2.75rem;   --ls-title1:   -0.0253em;
+  --fs-title2:   1.75rem;   --lh-title2:   2.375rem;  --ls-title2:   -0.0236em;
+  --fs-title3:   1.5rem;    --lh-title3:   2rem;      --ls-title3:   -0.0230em;
+  --fs-heading1: 1.375rem;  --lh-heading1: 1.875rem;  --ls-heading1: -0.0194em;
+  --fs-heading2: 1.25rem;   --lh-heading2: 1.75rem;   --ls-heading2: -0.0120em;
+  --fs-headline1: 1.125rem; --lh-headline1: 1.625rem; --ls-headline1: -0.0020em;
+  --fs-headline2: 1.0625rem;--lh-headline2: 1.5rem;   --ls-headline2: 0em;
+  --fs-body1: 1rem;         --lh-body1: 1.5rem;       --ls-body1: 0.0057em;
+  --fs-body2: 0.9375rem;    --lh-body2: 1.375rem;     --ls-body2: 0.0096em;
+  --fs-label1: 0.875rem;    --lh-label1: 1.25rem;     --ls-label1: 0.0145em;
+  --fs-label2: 0.8125rem;   --lh-label2: 1.125rem;    --ls-label2: 0.0194em;
+  --fs-caption1: 0.75rem;   --lh-caption1: 1rem;      --ls-caption1: 0.0252em;
+  --fs-caption2: 0.6875rem; --lh-caption2: 0.875rem;  --ls-caption2: 0.0311em;
+
+  --fw-regular: 400; --fw-medium: 500; --fw-bold-ui: 600; --fw-bold-display: 700;
+}
+
+[data-theme="dark"] {
+  --primary-normal: var(--blue-60);
+  --primary-strong: var(--blue-55);
+  --primary-heavy:  var(--blue-50);
+  --label-normal:      var(--coolNeutral-99);
+  --label-strong:      #ffffff;
+  --label-neutral:     rgba(194, 196, 200, 0.88);
+  --label-alternative: rgba(174, 176, 182, 0.61);
+  --label-assistive:   rgba(174, 176, 182, 0.28);
+  --label-disable:     rgba(152, 155, 162, 0.16);
+  --background-normal-normal:           var(--coolNeutral-15);
+  --background-normal-alternative:      var(--coolNeutral-5);
+  --background-elevated-normal:         var(--coolNeutral-17);
+  --background-elevated-alternative:    var(--coolNeutral-7);
+  --background-transparent-normal:      rgba(33,34,37,0.61);
+  --background-transparent-alternative: rgba(33,34,37,0.61);
+  --interaction-inactive: var(--coolNeutral-40);
+  --interaction-disable:  var(--coolNeutral-22);
+  --line-normal-normal:      rgba(112,115,124,0.32);
+  --line-normal-neutral:     rgba(112,115,124,0.28);
+  --line-normal-alternative: rgba(112,115,124,0.22);
+  --line-solid-normal:       var(--coolNeutral-25);
+  --line-solid-neutral:      var(--coolNeutral-23);
+  --line-solid-alternative:  var(--coolNeutral-22);
+  --status-positive:   var(--green-60);
+  --status-cautionary: var(--orange-60);
+  --status-negative:   var(--red-60);
+  --fill-normal:      rgba(112,115,124,0.22);
+  --fill-strong:      rgba(112,115,124,0.28);
+  --fill-alternative: rgba(112,115,124,0.12);
+  --material-dimmer: rgba(23,23,25,0.74);
+  --inverse-primary:    var(--blue-50);
+  --inverse-background: #ffffff;
+  --inverse-label:      var(--coolNeutral-10);
+}
+
+html, body {
+  font-family: var(--font-family-base);
+  color: var(--label-normal);
+  background: var(--background-normal-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .t-display1 { font-family: var(--font-family-display); font-size: var(--fs-display1); line-height: var(--lh-display1); letter-spacing: var(--ls-display1); font-weight: var(--fw-medium); margin: 0; }
+h2, .t-display2 { font-family: var(--font-family-display); font-size: var(--fs-display2); line-height: var(--lh-display2); letter-spacing: var(--ls-display2); font-weight: var(--fw-medium); margin: 0; }
+h3, .t-title1 { font-size: var(--fs-title1); line-height: var(--lh-title1); letter-spacing: var(--ls-title1); font-weight: var(--fw-bold-display); margin: 0; }
+h4, .t-title2 { font-size: var(--fs-title2); line-height: var(--lh-title2); letter-spacing: var(--ls-title2); font-weight: var(--fw-bold-display); margin: 0; }
+h5, .t-title3 { font-size: var(--fs-title3); line-height: var(--lh-title3); letter-spacing: var(--ls-title3); font-weight: var(--fw-bold-display); margin: 0; }
+h6, .t-heading1 { font-size: var(--fs-heading1); line-height: var(--lh-heading1); letter-spacing: var(--ls-heading1); font-weight: var(--fw-bold-ui); margin: 0; }
+.t-heading2  { font-size: var(--fs-heading2);  line-height: var(--lh-heading2);  letter-spacing: var(--ls-heading2);  font-weight: var(--fw-bold-ui); }
+.t-headline1 { font-size: var(--fs-headline1); line-height: var(--lh-headline1); letter-spacing: var(--ls-headline1); font-weight: var(--fw-medium); }
+.t-headline2 { font-size: var(--fs-headline2); line-height: var(--lh-headline2); letter-spacing: var(--ls-headline2); font-weight: var(--fw-medium); }
+.t-body1, p  { font-size: var(--fs-body1); line-height: var(--lh-body1); letter-spacing: var(--ls-body1); font-weight: var(--fw-regular); margin: 0; }
+.t-body2     { font-size: var(--fs-body2); line-height: var(--lh-body2); letter-spacing: var(--ls-body2); font-weight: var(--fw-regular); }
+.t-label1    { font-size: var(--fs-label1); line-height: var(--lh-label1); letter-spacing: var(--ls-label1); font-weight: var(--fw-medium); }
+.t-label2    { font-size: var(--fs-label2); line-height: var(--lh-label2); letter-spacing: var(--ls-label2); font-weight: var(--fw-medium); }
+.t-caption1  { font-size: var(--fs-caption1); line-height: var(--lh-caption1); letter-spacing: var(--ls-caption1); font-weight: var(--fw-regular); }
+.t-caption2  { font-size: var(--fs-caption2); line-height: var(--lh-caption2); letter-spacing: var(--ls-caption2); font-weight: var(--fw-regular); }
+
+code, pre, .t-mono {
+  font-family: var(--font-family-mono);
+  font-size: 0.875rem;
+  background: var(--fill-alternative);
+  padding: 2px 6px;
+  border-radius: var(--radius-6);
+}
+
+.break-word-korean { overflow-wrap: anywhere; word-break: keep-all; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--background-normal-alternative); min-height: 100vh; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--fill-strong); border-radius: 3px; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+/* ============================================================
+   Primitives
+   ============================================================ */
+const Button = ({
+  variant = 'solid', color = 'primary', size = 'medium',
+  disabled, loading, fullWidth, iconOnly,
+  leadingContent, trailingContent, children, ...rest
+}) => {
+  const sizeMap = {
+    small: { h: 32, px: 14, py: 7, fs: 13, fw: 600, radius: 8, gap: 4, icon: 16, iconPad: 7 },
+    medium: { h: 40, px: 20, py: 9, fs: 15, fw: 600, radius: 10, gap: 5, icon: 18, iconPad: 10 },
+    large: { h: 48, px: 28, py: 12, fs: 16, fw: 600, radius: 12, gap: 6, icon: 20, iconPad: 12 },
+  }[size];
+
+  const getBg = () => {
+    if (disabled) return 'var(--interaction-disable)';
+    if (variant === 'outlined') return 'transparent';
+    if (color === 'assistive') return 'var(--fill-normal)';
+    return 'var(--primary-normal)';
+  };
+  const getFg = () => {
+    if (disabled) return 'var(--label-assistive)';
+    if (variant === 'outlined' && color === 'primary') return 'var(--primary-normal)';
+    if (variant === 'outlined') return 'var(--label-normal)';
+    if (color === 'assistive') return 'var(--label-neutral)';
+    return 'var(--static-white)';
+  };
+
+  const style = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    gap: sizeMap.gap, fontFamily: 'var(--font-family-base)',
+    fontSize: sizeMap.fs, fontWeight: color === 'assistive' ? 500 : sizeMap.fw,
+    padding: iconOnly ? sizeMap.iconPad : `${sizeMap.py}px ${sizeMap.px}px`,
+    borderRadius: sizeMap.radius, border: 0, cursor: disabled ? 'default' : 'pointer',
+    background: getBg(), color: getFg(),
+    width: fullWidth ? '100%' : 'fit-content',
+    boxShadow: variant === 'outlined' ? 'inset 0 0 0 1px var(--line-normal-neutral)' : 'none',
+    backdropFilter: color === 'assistive' && variant === 'solid' ? 'blur(32px)' : 'none',
+    letterSpacing: size === 'small' ? '0.0145em' : '0.0096em',
+    transition: 'background 0.2s ease, color 0.2s ease',
+    position: 'relative', whiteSpace: 'nowrap',
+    opacity: loading ? 0.9 : 1,
+  };
+  return (
+    <button style={style} disabled={disabled} {...rest}>
+      {leadingContent}
+      {!iconOnly ? <span>{children}</span> : children}
+      {trailingContent}
+    </button>
+  );
+};
+
+const Chip = ({ selected, variant = 'default', leading, onClick, children }) => {
+  const style = {
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    padding: '7px 14px', borderRadius: 9999,
+    fontFamily: 'var(--font-family-base)', fontSize: 13, fontWeight: 500,
+    cursor: 'pointer', border: 0, whiteSpace: 'nowrap',
+    background: selected ? 'var(--label-normal)' :
+      variant === 'fill' ? 'var(--fill-normal)' : 'var(--background-elevated-normal)',
+    color: selected ? 'var(--static-white)' :
+      variant === 'primary' ? 'var(--primary-normal)' : 'var(--label-neutral)',
+    boxShadow: selected ? 'none' :
+      variant === 'primary' ? 'inset 0 0 0 1px var(--primary-normal)' :
+      variant === 'fill' ? 'none' : 'inset 0 0 0 1px var(--line-normal-neutral)',
+    transition: 'all 0.2s ease',
+  };
+  return <button style={style} onClick={onClick}>{leading}{children}</button>;
+};
+
+const Badge = ({ color = 'primary', children }) => {
+  const map = {
+    positive: ['color-mix(in srgb, var(--status-positive) 14%, transparent)', 'var(--accent-fg-green)'],
+    cautionary: ['color-mix(in srgb, var(--status-cautionary) 18%, transparent)', 'var(--accent-fg-orange)'],
+    negative: ['color-mix(in srgb, var(--status-negative) 16%, transparent)', 'var(--accent-fg-red)'],
+    primary: ['var(--blue-95)', 'var(--primary-normal)'],
+    violet: ['color-mix(in srgb, var(--violet-50) 14%, transparent)', 'var(--accent-fg-violet)'],
+    pink: ['color-mix(in srgb, var(--pink-50) 16%, transparent)', 'var(--accent-fg-pink)'],
+    cyan: ['color-mix(in srgb, var(--cyan-50) 18%, transparent)', 'var(--accent-fg-cyan)'],
+  };
+  const [bg, fg] = map[color];
+  return <span style={{
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+    letterSpacing: '0.02em', fontFamily: 'var(--font-family-base)',
+    background: bg, color: fg,
+  }}>{children}</span>;
+};
+
+const Card = ({ children, interactive, style: extra, ...rest }) => (
+  <div {...rest} style={{
+    background: 'var(--background-elevated-normal)',
+    borderRadius: 16, padding: 20,
+    border: '1px solid var(--line-normal-alternative)',
+    boxShadow: interactive ? 'var(--shadow-small)' : 'var(--shadow-xsmall)',
+    display: 'flex', flexDirection: 'column', gap: 10,
+    cursor: interactive ? 'pointer' : 'default',
+    transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+    ...extra,
+  }}>{children}</div>
+);
+
+const Input = ({ label, error, help, ...rest }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontFamily: 'var(--font-family-base)' }}>
+    {label && <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--label-neutral)' }}>{label}</label>}
+    <input {...rest} style={{
+      height: 44, padding: '0 14px', borderRadius: 10,
+      boxShadow: `inset 0 0 0 ${error ? 2 : 1}px ${error ? 'var(--status-negative)' : 'var(--line-solid-normal)'}`,
+      background: 'var(--background-elevated-normal)',
+      fontSize: 15, color: 'var(--label-normal)',
+      fontFamily: 'inherit', border: 0, outline: 'none',
+    }} />
+    {error ? <div style={{ fontSize: 12, color: 'var(--status-negative)' }}>{error}</div>
+      : help ? <div style={{ fontSize: 12, color: 'var(--label-alternative)' }}>{help}</div> : null}
+  </div>
+);
+
+const Avatar = ({ src, name, size = 40 }) => (
+  <div style={{
+    width: size, height: size, borderRadius: '50%',
+    background: src ? `url(${src}) center/cover` : 'var(--fill-strong)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--label-neutral)', fontFamily: 'var(--font-family-base)',
+    fontSize: size * 0.4, fontWeight: 600, flexShrink: 0,
+    boxShadow: 'inset 0 0 0 1px var(--line-normal-alternative)',
+  }}>{!src && name ? name[0].toUpperCase() : null}</div>
+);
+
+/* ============================================================
+   Icons
+   ============================================================ */
+const BillIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/>
+  </svg>
+);
+const WalletIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="18" cy="15" r="1"/>
+  </svg>
+);
+const ChartIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 20V10M12 20V4M6 20v-6"/>
+  </svg>
+);
+const ShieldIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>
+);
+const CheckCircle = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+  </svg>
+);
+const AlertTriangle = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+  </svg>
+);
+const CreditCardIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>
+  </svg>
+);
+const ArrowRight = ({size=16, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+);
+const ChevronRight = ({size=16, color='currentColor', style}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <path d="M9 18l6-6-6-6"/>
+  </svg>
+);
+const BackIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 18l-6-6 6-6"/>
+  </svg>
+);
+const HomeIcon = ({size=22, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/>
+  </svg>
+);
+const UserIcon = ({size=22, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+const DataIcon = ({size=18, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+  </svg>
+);
+const DiscountIcon = ({size=18, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+  </svg>
+);
+const RefreshIcon = ({size=18, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+  </svg>
+);
+const SparkleIcon = ({size=18, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
+    <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+  </svg>
+);
+const SwapIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/>
+  </svg>
+);
+const UsersIcon = ({size=20, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+  </svg>
+);
+const ClockIcon = ({size=18, color='currentColor'}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+  </svg>
+);
+
+/* ============================================================
+   Shell (mobile chrome pieces used across screens)
+   ============================================================ */
+const HEADER_H = 56;
+const TAB_H = 56;
+const SAFE_TOP = 47;
+const SAFE_BOT = 34;
+
+function AsIsBadge() {
+  return <span style={{
+    display: 'inline-flex', padding: '3px 8px', borderRadius: 6,
+    fontSize: 11, fontWeight: 600, letterSpacing: '0.02em',
+    background: 'var(--fill-strong)', color: 'var(--label-neutral)',
+  }}>현재 (AS-IS)</span>;
+}
+
+function ToBeBadge() {
+  return <span style={{
+    display: 'inline-flex', padding: '3px 8px', borderRadius: 6,
+    fontSize: 11, fontWeight: 600, letterSpacing: '0.02em',
+    background: 'var(--blue-95)', color: 'var(--primary-normal)',
+  }}>개선안 (TO-BE)</span>;
+}
+
+/* ============================================================
+   AnimatedNumber (used by screens below)
+   ============================================================ */
+function AnimatedNumber({ value, suffix = '', style = {} }) {
+  const [display, setDisplay] = React.useState(0);
+  React.useEffect(() => {
+    const dur = 300;
+    const t0 = performance.now();
+    const tick = (now) => {
+      const p = Math.min((now - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(ease * value));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [value]);
+  return <div style={{ display: 'inline-block', whiteSpace: 'nowrap', ...style }}>{display.toLocaleString()}{suffix}</div>;
+}
+
+/* ============================================================
+   Screens — AS-IS (1, 3, 6, 8)
+   ============================================================ */
+function Screen1_AsIs({ nav }) {
+  const menus = ['요금 조회', '납부', '자동납부', '영수증', '사용량'];
+  return (
+    <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 'var(--fs-heading2)', fontWeight: 'var(--fw-bold-ui)' }}>요금 서비스</div>
+      <p style={{ color: 'var(--label-alternative)', fontSize: 'var(--fs-body2)' }}>
+        원하시는 메뉴를 선택해 주세요.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid var(--line-solid-normal)', borderRadius: 12, overflow: 'hidden' }}>
+        {menus.map((m, i) => (
+          <div key={m} style={{
+            padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderTop: i ? '1px solid var(--line-normal-alternative)' : 'none',
+            cursor: 'pointer', background: 'var(--background-elevated-normal)',
+          }}>
+            <span style={{ fontSize: 'var(--fs-body1)', fontWeight: 'var(--fw-medium)' }}>{m}</span>
+            <ChevronRight size={16} color="var(--label-assistive)" />
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 8, padding: 16, borderRadius: 10, background: 'var(--fill-alternative)' }}>
+        <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', lineHeight: 1.5 }}>
+          ※ 가족·다회선 관리는 MY &gt; 회선관리 &gt; 가족결합에서 확인 가능합니다.
+        </p>
+      </div>
+      <div style={{ marginTop: 'auto', padding: '20px 0' }}>
+        <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', textAlign: 'center', lineHeight: 1.6 }}>
+          기능 분산 구조로 여정 단절 · 메뉴 탐색 부담
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Screen3_AsIs({ nav }) {
+  const rows = [
+    { label: '집계 청구 금액', value: '68,200원' },
+    { label: '기본료', value: '55,000원' },
+    { label: '부가서비스', value: '3,300원' },
+    { label: '할인 적용액', value: '-2,100원', neg: true },
+    { label: '기기 할부금', value: '10,000원' },
+    { label: '당월 부가세', value: '2,000원' },
+  ];
+  return (
+    <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 'var(--fs-heading2)', fontWeight: 'var(--fw-bold-ui)' }}>청구서</div>
+      <p style={{ color: 'var(--label-alternative)', fontSize: 'var(--fs-body2)' }}>2025년 7월분 청구 내역</p>
+      <div style={{ border: '1px solid var(--line-solid-normal)', borderRadius: 12, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-body2)' }}>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i} style={{ borderTop: i ? '1px solid var(--line-normal-alternative)' : 'none' }}>
+                <td style={{ padding: '14px 16px', color: 'var(--label-neutral)', fontWeight: i === 0 ? 600 : 400 }}>{r.label}</td>
+                <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: i === 0 ? 700 : 400, color: r.neg ? 'var(--status-positive)' : 'var(--label-normal)' }}>{r.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ padding: 16, borderRadius: 10, background: 'var(--fill-alternative)' }}>
+        <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', lineHeight: 1.6 }}>
+          시스템 용어 그대로 노출 · "왜 이 금액인지" 설명 부족
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Screen6_AsIs({ nav }) {
+  return (
+    <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ fontSize: 'var(--fs-heading2)', fontWeight: 'var(--fw-bold-ui)' }}>자동납부 설정</div>
+      <div style={{ background: 'var(--background-elevated-normal)', borderRadius: 12, padding: 20, border: '1px solid var(--line-normal-alternative)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <span style={{ fontSize: 'var(--fs-body1)', fontWeight: 'var(--fw-medium)' }}>자동납부</span>
+          <div style={{ width: 48, height: 28, borderRadius: 14, background: 'var(--status-positive)', position: 'relative', cursor: 'pointer' }}>
+            <div style={{ width: 24, height: 24, borderRadius: 12, background: '#fff', position: 'absolute', top: 2, right: 2, boxShadow: 'var(--shadow-small)' }} />
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'var(--label-neutral)', fontSize: 'var(--fs-body2)' }}>
+          <CreditCardIcon size={18} />
+          <span>신한카드 ****1234</span>
+        </div>
+      </div>
+      <div style={{ padding: 16, borderRadius: 10, background: 'var(--fill-alternative)' }}>
+        <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', lineHeight: 1.6 }}>
+          실패 가능성·복구 경로 미제공 · 권한 장벽
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Screen8_AsIs({ nav }) {
+  return (
+    <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ fontSize: 'var(--fs-heading2)', fontWeight: 'var(--fw-bold-ui)' }}>결제수단 등록</div>
+      <Input label="카드번호" placeholder="0000-0000-0000-0000" />
+      <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ flex: 1 }}><Input label="유효기간" placeholder="MM/YY" /></div>
+        <div style={{ flex: 1 }}><Input label="CVC" placeholder="000" /></div>
+      </div>
+      <Input label="생년월일" placeholder="YYMMDD" />
+      <div style={{ marginTop: 8, padding: 16, borderRadius: 10, background: 'color-mix(in srgb, var(--status-negative) 10%, transparent)' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <AlertTriangle size={16} color="var(--status-negative)" />
+          <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--status-negative)', lineHeight: 1.5 }}>
+            오류 코드 E-102: 등록에 실패했습니다.
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: 16, borderRadius: 10, background: 'var(--fill-alternative)' }}>
+        <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', lineHeight: 1.6 }}>
+          오류 원인 불명 · 적용 시점 불투명
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   Screens — TO-BE (2 Hub, 4, 5)
+   ============================================================ */
+function Screen2_Hub({ nav }) {
+  return (
+    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Card interactive onClick={() => nav('s4')} style={{ padding: 24, gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <AnimatedNumber value={68200} suffix="원" style={{ fontSize: 32, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em' }} />
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
+              <span style={{ fontSize: 'var(--fs-label1)', color: 'var(--status-cautionary)', fontWeight: 600 }}>전월 대비 +3,200원 ▲</span>
+            </div>
+          </div>
+          <BillIcon size={24} color="var(--primary-normal)" />
+        </div>
+        <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 4 }}>7월 25일 자동납부 예정</div>
+      </Card>
+
+      <div onClick={() => nav('s7')} style={{
+        padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+        background: 'color-mix(in srgb, var(--status-negative) 8%, transparent)',
+        display: 'flex', alignItems: 'center', gap: 10,
+        border: '1px solid color-mix(in srgb, var(--status-negative) 16%, transparent)',
+      }}>
+        <AlertTriangle size={18} color="var(--status-negative)" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--status-negative)' }}>6월분 미납 12,000원</div>
+          <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>지금 해결하기</div>
+        </div>
+        <ChevronRight size={14} color="var(--status-negative)" />
+      </div>
+
+      <Card interactive onClick={() => nav('s5')} style={{ gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', fontWeight: 500 }}>다음 달 예상</div>
+          <ChartIcon size={18} color="var(--accent-fg-violet)" />
+        </div>
+        <AnimatedNumber value={72400} suffix="원" style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-family-display)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary-normal)', fontSize: 'var(--fs-label1)', fontWeight: 500 }}>
+          요금제 변경 시뮬레이션 <ChevronRight size={12} />
+        </div>
+      </Card>
+
+      <Card style={{ gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', fontWeight: 500 }}>가족 회선 요약</div>
+          <UsersIcon size={18} color="var(--accent-fg-cyan)" />
+        </div>
+        {[{ name: '김영희 (배우자)', amount: '52,300원' }, { name: '김서연 (자녀)', amount: '38,100원' }].map((f, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: i ? '1px solid var(--line-normal-alternative)' : 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 16, background: 'var(--fill-normal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: 'var(--label-neutral)' }}>{f.name[0]}</div>
+              <span style={{ fontSize: 'var(--fs-body2)', fontWeight: 'var(--fw-medium)' }}>{f.name}</span>
+            </div>
+            <span style={{ fontSize: 'var(--fs-body2)', fontWeight: 600 }}>{f.amount}</span>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+function Screen4_ToBe({ nav }) {
+  const [openDetail, setOpenDetail] = React.useState(null);
+  const items = [
+    { icon: <WalletIcon size={18} color="var(--primary-normal)" />, title: '기본요금 55,000원', desc: '5G 슬림+ 요금제', detail: '월 기본 요금제 비용입니다. 데이터 11GB + 음성/문자 무제한이 포함됩니다.' },
+    { icon: <DataIcon size={18} color="var(--accent-fg-redOrange)" />, title: '추가 사용 +3,200원', desc: '데이터 초과 2.3GB', detail: '기본 제공 데이터 11GB를 초과하여 2.3GB를 추가 사용했습니다. 1GB당 약 1,400원이 부과됩니다.' },
+    { icon: <DiscountIcon size={18} color="var(--status-positive)" />, title: '할인 -2,100원', desc: 'T멤버십 VIP 할인 적용', detail: 'T멤버십 VIP 등급 혜택으로 기본료의 3.8% 할인이 적용되었습니다.' },
+  ];
+
+  return (
+    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ marginTop: 4, textAlign: 'center' }}>
+        <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)' }}>이번 달 청구</div>
+        <AnimatedNumber value={68200} suffix="원" style={{ fontSize: 36, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em', marginTop: 4 }} />
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>왜 이 금액이에요?</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {items.map((item, i) => (
+            <Card key={i} interactive onClick={() => setOpenDetail(openDetail === i ? null : i)} style={{ padding: 16, gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--fill-alternative)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {item.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 'var(--fs-body2)', fontWeight: 600 }}>{item.title}</div>
+                  <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>{item.desc}</div>
+                </div>
+                <ChevronRight size={14} color="var(--label-assistive)" style={{ transform: openDetail === i ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
+              </div>
+              {openDetail === i && (
+                <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-neutral)', lineHeight: 1.6, padding: '8px 0 0 46px' }}>
+                  {item.detail}
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
+        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>전월 대비</div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
+          지난달보다 <strong style={{ color: 'var(--status-cautionary)' }}>+3,200원</strong>, 주로 데이터 초과 때문이에요.
+        </p>
+      </Card>
+
+      <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <SparkleIcon size={14} color="var(--accent-fg-violet)" />
+          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>비슷한 달을 살펴봤어요</span>
+        </div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>지난 3개월 평균 65,000원</p>
+      </Card>
+
+      <Button fullWidth color="assistive" onClick={() => nav('s5')} style={{ marginTop: 8 }}>
+        다음 달 예상 시뮬레이션
+      </Button>
+    </div>
+  );
+}
+
+function Screen5_ToBe({ nav }) {
+  const plans = [
+    { name: '5G 슬림+ (현재)', price: '72,400원', current: true },
+    { name: '5G 스탠다드', price: '69,000원', save: '-3,400원' },
+    { name: '5G 다이렉트', price: '59,900원', save: '-12,500원' },
+  ];
+  return (
+    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ textAlign: 'center', marginTop: 4 }}>
+        <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)' }}>다음 달 예상</div>
+        <AnimatedNumber value={72400} suffix="원" style={{ fontSize: 36, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em', marginTop: 4 }} />
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>요금제 변경 시 얼마?</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {plans.map((p, i) => (
+            <Card key={i} style={{
+              padding: 16, gap: 6,
+              border: p.current ? '2px solid var(--primary-normal)' : '1px solid var(--line-normal-alternative)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 'var(--fs-body1)', fontWeight: 600 }}>{p.name}</span>
+                <span style={{ fontSize: 'var(--fs-headline1)', fontWeight: 700, fontFamily: 'var(--font-family-display)' }}>{p.price}</span>
+              </div>
+              {p.save && (
+                <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--status-positive)', fontWeight: 600 }}>{p.save}/월 절약</div>
+              )}
+              {p.current && <Badge color="primary">현재 요금제</Badge>}
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
+        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>변경 시 영향</div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
+          첫 달 <strong>+4,000원</strong> (위약금 일할) · 두 달째부터 <strong style={{ color: 'var(--status-positive)' }}>-8,000원</strong>
+        </p>
+      </Card>
+
+      <Card style={{ gap: 8, background: 'color-mix(in srgb, var(--accent-bg-violet) 8%, transparent)', border: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <SparkleIcon size={14} color="var(--accent-fg-violet)" />
+          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-violet)' }}>AI 추천</span>
+        </div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>최근 사용량 기준, 5G 다이렉트로 바꾸면 연 15만원 절약이 가능해요.</p>
+      </Card>
+
+      <Button fullWidth disabled style={{ marginTop: 8 }}>요금제 바꾸기</Button>
+      <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', textAlign: 'center' }}>별도 요금제 변경 플로우로 연결됩니다</p>
+    </div>
+  );
+}
+
+/* ============================================================
+   Screens — TO-BE (7, 9, 10)
+   ============================================================ */
+function Screen7_ToBe({ nav }) {
+  const months = [
+    { m: '2월', ok: true }, { m: '3월', ok: true }, { m: '4월', ok: true },
+    { m: '5월', ok: false }, { m: '6월', ok: true }, { m: '7월', ok: true },
+  ];
+  return (
+    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Card style={{ gap: 12, padding: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'color-mix(in srgb, var(--status-positive) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <CheckCircle size={20} color="var(--status-positive)" />
+          </div>
+          <div>
+            <div style={{ fontSize: 'var(--fs-body1)', fontWeight: 600 }}>자동납부 활성화</div>
+            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>다음 출금 7/25 · 신한카드 ****1234</div>
+          </div>
+        </div>
+      </Card>
+
+      <div style={{
+        padding: '14px 16px', borderRadius: 12,
+        background: 'color-mix(in srgb, var(--status-cautionary) 10%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--status-cautionary) 20%, transparent)',
+        display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+      }} onClick={() => nav('s9')}>
+        <AlertTriangle size={18} color="var(--status-cautionary)" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-orange)' }}>카드 유효기간 9월 만료 예정</div>
+          <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>지금 바꾸기</div>
+        </div>
+        <ChevronRight size={14} color="var(--status-cautionary)" />
+      </div>
+
+      <div>
+        <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>최근 결제 이력</div>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+          {months.map((m, i) => (
+            <div key={i} style={{
+              minWidth: 52, padding: '10px 0', borderRadius: 10, textAlign: 'center',
+              background: m.ok ? 'color-mix(in srgb, var(--status-positive) 8%, transparent)' : 'color-mix(in srgb, var(--status-negative) 8%, transparent)',
+              border: `1px solid ${m.ok ? 'color-mix(in srgb, var(--status-positive) 16%, transparent)' : 'color-mix(in srgb, var(--status-negative) 16%, transparent)'}`,
+            }}>
+              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{m.m}</div>
+              <div style={{ fontSize: 14, marginTop: 4 }}>{m.ok ? '✓' : '✗'}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Card style={{ gap: 12 }}>
+        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>실패 복구 가이드</div>
+        {[
+          { time: '5/25', text: '자동납부 실패 · 잔액 부족', color: 'var(--status-negative)' },
+          { time: '5/26', text: '알림 발송 · 잔액 확인 안내', color: 'var(--status-cautionary)' },
+          { time: '5/28', text: '자동 재시도 성공', color: 'var(--status-positive)' },
+        ].map((ev, i) => (
+          <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 20 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 5, background: ev.color, flexShrink: 0 }} />
+              {i < 2 && <div style={{ width: 2, height: 24, background: 'var(--line-normal-alternative)' }} />}
+            </div>
+            <div>
+              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{ev.time}</div>
+              <div style={{ fontSize: 'var(--fs-body2)', fontWeight: 500, marginTop: 2 }}>{ev.text}</div>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+        <Button fullWidth onClick={() => nav('s9')}>결제수단 바꾸기</Button>
+      </div>
+      <button onClick={() => {}} style={{
+        background: 'none', border: 0, cursor: 'pointer',
+        fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', textAlign: 'center',
+        padding: 8, fontFamily: 'var(--font-family-base)',
+      }}>자동납부 끄기</button>
+    </div>
+  );
+}
+
+function Screen9_ToBe({ nav }) {
+  return (
+    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 'var(--fs-heading2)', fontWeight: 'var(--fw-bold-ui)', marginTop: 4 }}>결제수단 변경</div>
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        {[
+          { label: '현재', name: '신한카드', num: '****1234', bg: 'var(--fill-alternative)' },
+          { label: '변경', name: 'KB국민카드', num: '****5678', bg: 'color-mix(in srgb, var(--primary-normal) 8%, transparent)' },
+        ].map((c, i) => (
+          <Card key={i} style={{ flex: 1, padding: 16, gap: 6, background: c.bg, border: i === 1 ? '2px solid var(--primary-normal)' : undefined }}>
+            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', fontWeight: 500 }}>{c.label}</div>
+            <CreditCardIcon size={24} color={i === 1 ? 'var(--primary-normal)' : 'var(--label-neutral)'} />
+            <div style={{ fontSize: 'var(--fs-body2)', fontWeight: 600, marginTop: 4 }}>{c.name}</div>
+            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{c.num}</div>
+          </Card>
+        ))}
+      </div>
+
+      <Card style={{ gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ClockIcon size={18} color="var(--primary-normal)" />
+          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>적용 일정</span>
+        </div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
+          7/22 00시부터 적용. 7/25 자동납부는 새 수단으로 진행됩니다.
+        </p>
+      </Card>
+
+      <Card style={{ gap: 8, background: 'color-mix(in srgb, var(--status-positive) 6%, transparent)', border: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <SparkleIcon size={16} color="var(--status-positive)" />
+          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-green)' }}>혜택 변화</span>
+        </div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
+          KB 제휴 5% 할인 자동 적용, 월 최대 2,000원
+        </p>
+      </Card>
+
+      <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <RefreshIcon size={16} color="var(--label-neutral)" />
+          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>되돌리기 안내</span>
+        </div>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>
+          변경 후 24시간 내 취소 가능
+        </p>
+      </Card>
+
+      <Button fullWidth onClick={() => nav('s10')} style={{ marginTop: 8 }}>KB국민카드로 바꾸기</Button>
+    </div>
+  );
+}
+
+function Screen10_ToBe({ nav }) {
+  const [showCheck, setShowCheck] = React.useState(false);
+  React.useEffect(() => { const id = setTimeout(() => setShowCheck(true), 200); return () => clearTimeout(id); }, []);
+  return (
+    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
+      <div style={{
+        marginTop: 40, width: 72, height: 72, borderRadius: 36,
+        background: 'color-mix(in srgb, var(--status-positive) 12%, transparent)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transform: showCheck ? 'scale(1)' : 'scale(0.9)',
+        opacity: showCheck ? 1 : 0, transition: 'all 0.4s ease',
+      }}>
+        <CheckCircle size={36} color="var(--status-positive)" />
+      </div>
+      <div style={{ fontSize: 'var(--fs-title3)', fontWeight: 700, marginTop: 8, textAlign: 'center' }}>변경이 완료되었어요</div>
+
+      <Card style={{ gap: 8, width: '100%', marginTop: 8, textAlign: 'center' }}>
+        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.6 }}>
+          다음 자동납부부터<br /><strong>KB국민카드</strong>로 출금됩니다
+        </p>
+      </Card>
+
+      <Card style={{ gap: 0, width: '100%' }}>
+        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, marginBottom: 8 }}>다음 할 일</div>
+        {[
+          { text: '다음 달 예상 금액 확인하기', target: 's5' },
+          { text: '가족 회선도 같이 관리하기', target: null },
+        ].map((item, i) => (
+          <div key={i} onClick={() => item.target && nav(item.target)} style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '14px 0', borderTop: i ? '1px solid var(--line-normal-alternative)' : 'none',
+            cursor: item.target ? 'pointer' : 'default',
+            color: 'var(--primary-normal)', fontSize: 'var(--fs-body2)', fontWeight: 500,
+          }}>
+            <span>{item.text}</span>
+            <ChevronRight size={14} />
+          </div>
+        ))}
+      </Card>
+
+      <Button fullWidth color="assistive" onClick={() => nav('s2')} style={{ marginTop: 8 }}>요금 허브로 돌아가기</Button>
+    </div>
+  );
+}
+
+/* ============================================================
+   Landing page — PC full-width side-by-side comparison
+   ============================================================ */
+function PhoneFrame({ badge, children, scale = 0.85 }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+      <div>{badge}</div>
+      <div style={{
+        width: 375, height: 750, borderRadius: 44, overflow: 'hidden',
+        background: 'var(--background-normal-normal)',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)',
+        display: 'flex', flexDirection: 'column', position: 'relative',
+        transform: `scale(${scale})`, transformOrigin: 'top center',
+      }}>
+        <div style={{
+          height: 47, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+          padding: '0 24px 6px', fontSize: 14, fontWeight: 600,
+          fontFamily: '-apple-system, system-ui', color: 'var(--label-normal)', flexShrink: 0,
+        }}>
+          <span>9:41</span>
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx=".7" fill="currentColor"/><rect x="4.5" y="4.5" width="3" height="6.5" rx=".7" fill="currentColor"/><rect x="9" y="2" width="3" height="9" rx=".7" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx=".7" fill="currentColor"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="currentColor" strokeOpacity=".35" fill="none"/><rect x="1.5" y="1.5" width="19" height="9" rx="2" fill="currentColor"/><path d="M23 3.5v5c.7-.3 1.3-1 1.3-1.7v-1.6c0-.7-.6-1.4-1.3-1.7z" fill="currentColor" fillOpacity=".4"/></svg>
+          </div>
+        </div>
+        <div style={{
+          position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
+          width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
+        }} />
+        <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
+        <div style={{ height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', paddingBottom: 8, flexShrink: 0 }}>
+          <div style={{ width: 139, height: 5, borderRadius: 100, background: 'rgba(0,0,0,0.2)' }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CompareSection({ index, title, subtitle, asIsContent, toBeContent }) {
+  return (
+    <section style={{ padding: '64px 0 48px', borderBottom: '1px solid var(--line-normal-alternative)' }}>
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary-normal)', marginBottom: 8 }}>FEATURE {index}</div>
+        <div style={{ fontSize: 'var(--fs-title2)', fontWeight: 700, letterSpacing: 'var(--ls-title2)' }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 'var(--fs-body1)', color: 'var(--label-alternative)', marginTop: 8 }}>{subtitle}</div>}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'nowrap' }}>
+        <PhoneFrame badge={<AsIsBadge />}>{asIsContent}</PhoneFrame>
+        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <ArrowRight size={24} color="var(--label-assistive)" />
+        </div>
+        <PhoneFrame badge={<ToBeBadge />}>{toBeContent}</PhoneFrame>
+      </div>
+    </section>
+  );
+}
+
+const EMBED_MODE = new URLSearchParams(window.location.search).get('embed') === '1';
+if (EMBED_MODE) {
+  document.documentElement.classList.add('embed');
+  const s = document.createElement('style');
+  s.textContent = 'html.embed, html.embed body { background: transparent !important; min-height: auto !important; }';
+  document.head.appendChild(s);
+}
+
+function LandingPage() {
+  const dummyNav = () => {};
+
+  React.useEffect(() => {
+    if (!EMBED_MODE || window.parent === window) return;
+    const send = () => {
+      const h = document.documentElement.scrollHeight;
+      window.parent.postMessage({ type: 'proto-height', h }, '*');
+    };
+    const applyTheme = (theme) => {
+      if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      else document.documentElement.removeAttribute('data-theme');
+    };
+    const onMsg = (e) => {
+      if (e.data && e.data.type === 'theme') applyTheme(e.data.theme);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: 'proto-ready' }, '*');
+    send();
+    const ro = new ResizeObserver(send);
+    ro.observe(document.documentElement);
+    const onLoad = () => send();
+    window.addEventListener('load', onLoad);
+    const t = setInterval(send, 500);
+    setTimeout(() => clearInterval(t), 3000);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('load', onLoad);
+      window.removeEventListener('message', onMsg);
+      clearInterval(t);
+    };
+  }, []);
+
+  return (
+    <div style={{
+      width: '100%', minHeight: EMBED_MODE ? 'auto' : '100vh',
+      background: EMBED_MODE ? 'transparent' : 'var(--background-normal-alternative)',
+      fontFamily: 'var(--font-family-base)', color: 'var(--label-normal)',
+    }}>
+      {!EMBED_MODE && (
+        <header style={{
+          padding: '64px 40px 48px', textAlign: 'center',
+          background: 'var(--background-normal-normal)',
+          borderBottom: '1px solid var(--line-normal-alternative)',
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.1em', color: 'var(--primary-normal)', marginBottom: 12 }}>SKT NEXT CHANNEL</div>
+          <h1 style={{
+            fontSize: 'var(--fs-display2)', fontWeight: 'var(--fw-bold-display)',
+            letterSpacing: 'var(--ls-display2)', fontFamily: 'var(--font-family-display)',
+            lineHeight: 'var(--lh-display2)', maxWidth: 720, margin: '0 auto',
+          }}>
+            신뢰 기반 셀프완결형<br />요금 납부·관리
+          </h1>
+          <p style={{ fontSize: 'var(--fs-body1)', color: 'var(--label-alternative)', marginTop: 16, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
+            청구·납부 정보를 고객 관점에서 재해석하고, 조회–납부–변경–예외 대응을 하나의 흐름으로 연결합니다.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 32, flexWrap: 'wrap' }}>
+            {['셀프완결', '의미 중심 설명', '예측형 관리', '가족·다회선'].map(t => (
+              <span key={t} style={{
+                padding: '6px 16px', borderRadius: 9999,
+                background: 'var(--fill-normal)', fontSize: 'var(--fs-label1)',
+                fontWeight: 500, color: 'var(--label-neutral)',
+              }}>{t}</span>
+            ))}
+          </div>
+        </header>
+      )}
+
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: EMBED_MODE ? '0 24px' : '0 32px' }}>
+        <CompareSection index={1}
+          title="요금·납부 통합 허브"
+          subtitle="분산 메뉴 → 통합 허브 진입"
+          asIsContent={<Screen1_AsIs nav={dummyNav} />}
+          toBeContent={<Screen2_Hub nav={dummyNav} />}
+        />
+        <CompareSection index={2}
+          title="현재 요금 상세 확인"
+          subtitle="시스템 용어 나열 → 의미 중심 재구성"
+          asIsContent={<Screen3_AsIs nav={dummyNav} />}
+          toBeContent={<Screen4_ToBe nav={dummyNav} />}
+        />
+        <CompareSection index={3}
+          title="자동납부 정책 관리"
+          subtitle="단순 ON/OFF → 리스크·이력 관리"
+          asIsContent={<Screen6_AsIs nav={dummyNav} />}
+          toBeContent={<Screen7_ToBe nav={dummyNav} />}
+        />
+        <CompareSection index={4}
+          title="납부수단 변경"
+          subtitle="빈 폼 등록 → 영향 미리보기 + 변경"
+          asIsContent={<Screen8_AsIs nav={dummyNav} />}
+          toBeContent={<Screen9_ToBe nav={dummyNav} />}
+        />
+      </div>
+
+      {!EMBED_MODE && (
+        <footer style={{ padding: '48px 32px', textAlign: 'center' }}>
+          <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)' }}>
+            SKT Next Channel · #4 신뢰 기반 셀프완결형 요금 납부·관리 경험 재설계
+          </p>
+        </footer>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   Root
+   ============================================================ */
+ReactDOM.createRoot(document.getElementById('root')).render(<LandingPage />);
+</script>
+</body>
+</html>
