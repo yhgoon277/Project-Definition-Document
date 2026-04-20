@@ -1,0 +1,225 @@
+/* ============================================================
+   Montage (WDS) — Colors & Type tokens
+   Wanted Lab Design System for Web
+   ------------------------------------------------------------
+   주의: 공식 WDS는 런타임에 --atomic-*, --semantic-* 접두어로
+   주입되지만(https://github.com/wanteddev/montage-web), 이 파일은
+   프로토타입용으로 평탄화한 네이밍을 사용합니다. 값은 WDS 원천과
+   동일합니다. iOS DS 에서 검증한 mobile-native 수치를 반영한
+   motion / shadow 토큰도 함께 포함합니다.
+   ============================================================ */
+@import url("https://static.wanted.co.kr/fonts/wantedsans/WantedSansVariable.min.css");
+@import url("https://static.wanted.co.kr/fonts/pretendard/pretendard/pretendardvariable-dynamic-subset.min.css");
+@import url("https://static.wanted.co.kr/fonts/pretendard/pretendard-jp/pretendardvariable-jp-dynamic-subset.min.css");
+
+:root {
+  --font-family-wanted-sans: "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-family-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-family-base: var(--font-family-pretendard);
+  --font-family-display: var(--font-family-wanted-sans);
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --common-white: #ffffff;
+  --common-black: #000000;
+
+  --blue-10:#001536; --blue-20:#002966; --blue-30:#003E9C; --blue-40:#0054D1;
+  --blue-45:#005EEB; --blue-50:#0066FF; --blue-55:#1A75FF; --blue-60:#3385FF;
+  --blue-65:#4F95FF; --blue-70:#69A5FF; --blue-80:#9EC5FF; --blue-90:#C9DEFE;
+  --blue-95:#EAF2FE; --blue-99:#F7FBFF;
+
+  --coolNeutral-5:#0F0F10; --coolNeutral-7:#141415; --coolNeutral-10:#171719;
+  --coolNeutral-15:#1B1C1E; --coolNeutral-17:#212225; --coolNeutral-20:#292A2D;
+  --coolNeutral-22:#2E2F33; --coolNeutral-23:#333438; --coolNeutral-25:#37383C;
+  --coolNeutral-30:#46474C; --coolNeutral-40:#5A5C63; --coolNeutral-50:#70737C;
+  --coolNeutral-60:#878A93; --coolNeutral-70:#989BA2; --coolNeutral-80:#AEB0B6;
+  --coolNeutral-90:#C2C4C8; --coolNeutral-95:#DBDCDF; --coolNeutral-96:#E1E2E4;
+  --coolNeutral-97:#EAEBEC; --coolNeutral-98:#F4F4F5; --coolNeutral-99:#F7F7F8;
+
+  --neutral-5:#0F0F0F; --neutral-10:#171717; --neutral-15:#1C1C1C;
+  --neutral-20:#2A2A2A; --neutral-22:#303030; --neutral-30:#474747;
+  --neutral-40:#5C5C5C; --neutral-50:#737373; --neutral-60:#8A8A8A;
+  --neutral-70:#9B9B9B; --neutral-80:#B0B0B0; --neutral-90:#C4C4C4;
+  --neutral-95:#DCDCDC; --neutral-99:#F7F7F7;
+
+  --red-40:#E52222; --red-50:#FF4242; --red-60:#FF6363;
+  --green-40:#009632; --green-50:#00BF40; --green-60:#1ED45A;
+  --orange-39:#D17600; --orange-50:#FF9200; --orange-60:#FFA938;
+
+  --redOrange-48:#F55A00; --redOrange-50:#FF5E00; --redOrange-60:#FF7B2E;
+  --lime-37:#429E00; --lime-50:#58CF04; --lime-60:#6BE016;
+  --cyan-40:#0098B2; --cyan-50:#00BDDE; --cyan-60:#28D0ED;
+  --lightBlue-40:#008DCF; --lightBlue-50:#00AEFF; --lightBlue-60:#3DC2FF;
+  --violet-45:#5B37ED; --violet-50:#6541F2; --violet-60:#7D5EF7; --violet-70:#9E86FC;
+  --purple-40:#AD36E3; --purple-50:#CB59FF; --purple-60:#D478FF;
+  --pink-46:#E846CD; --pink-50:#F553DA; --pink-60:#FA73E3;
+
+  --static-white: #ffffff;
+  --static-black: #000000;
+
+  --primary-normal: var(--blue-50);
+  --primary-strong: var(--blue-45);
+  --primary-heavy:  var(--blue-40);
+
+  --label-normal:      var(--coolNeutral-10);
+  --label-strong:      #000000;
+  --label-neutral:     rgba(46, 47, 51, 0.88);
+  --label-alternative: rgba(55, 56, 60, 0.61);
+  --label-assistive:   rgba(55, 56, 60, 0.28);
+  --label-disable:     rgba(55, 56, 60, 0.16);
+
+  --background-normal-normal:           #ffffff;
+  --background-normal-alternative:      var(--coolNeutral-99);
+  --background-elevated-normal:         #ffffff;
+  --background-elevated-alternative:    var(--coolNeutral-99);
+  --background-transparent-normal:      rgba(255,255,255,0.08);
+  --background-transparent-alternative: rgba(255,255,255,0.28);
+
+  --interaction-inactive: var(--coolNeutral-70);
+  --interaction-disable:  var(--coolNeutral-98);
+
+  --line-normal-normal:      rgba(112, 115, 124, 0.22);
+  --line-normal-neutral:     rgba(112, 115, 124, 0.16);
+  --line-normal-alternative: rgba(112, 115, 124, 0.08);
+  --line-solid-normal:       var(--coolNeutral-96);
+  --line-solid-neutral:      var(--coolNeutral-97);
+  --line-solid-alternative:  var(--coolNeutral-98);
+
+  --status-positive:   var(--green-50);
+  --status-cautionary: var(--orange-50);
+  --status-negative:   var(--red-50);
+
+  --fill-normal:      rgba(112, 115, 124, 0.08);
+  --fill-strong:      rgba(112, 115, 124, 0.16);
+  --fill-alternative: rgba(112, 115, 124, 0.05);
+
+  --material-dimmer: rgba(23, 23, 25, 0.52);
+
+  --inverse-primary:    var(--blue-60);
+  --inverse-background: var(--coolNeutral-15);
+  --inverse-label:      var(--coolNeutral-99);
+
+  --accent-fg-red:       var(--red-40);
+  --accent-fg-redOrange: var(--redOrange-48);
+  --accent-fg-orange:    var(--orange-39);
+  --accent-fg-lime:      var(--lime-37);
+  --accent-fg-green:     var(--green-40);
+  --accent-fg-cyan:      var(--cyan-40);
+  --accent-fg-lightBlue: var(--lightBlue-40);
+  --accent-fg-blue:      var(--blue-45);
+  --accent-fg-violet:    var(--violet-45);
+  --accent-fg-purple:    var(--purple-40);
+  --accent-fg-pink:      var(--pink-46);
+
+  --accent-bg-redOrange: var(--redOrange-50);
+  --accent-bg-lime:      var(--lime-50);
+  --accent-bg-cyan:      var(--cyan-50);
+  --accent-bg-lightBlue: var(--lightBlue-50);
+  --accent-bg-violet:    var(--violet-50);
+  --accent-bg-purple:    var(--purple-50);
+  --accent-bg-pink:      var(--pink-50);
+
+  /* Shadow — two-layer (ambient + key), iOS Montage 에서 추출한 값에 맞춰 미세하게 */
+  --shadow-xsmall: 0 1px 0.5px rgba(23,23,23,0.05);
+  --shadow-small:  0 2px 1px rgba(23,23,23,0.03), 0 4px 2.5px rgba(23,23,23,0.03);
+  --shadow-medium: 0 4px 2px rgba(23,23,23,0.035), 0 10px 6px rgba(23,23,23,0.035);
+  --shadow-large:  0 6px 3px rgba(23,23,23,0.04), 0 16px 9px rgba(23,23,23,0.04);
+  --shadow-xlarge: 0 10px 5px rgba(23,23,23,0.05), 0 24px 14px rgba(23,23,23,0.06);
+  --shadow-spread-small:  0px 0px 60px 0px rgba(23,23,23,0.10);
+  --shadow-spread-medium: 0px 15px 75px 0px rgba(23,23,23,0.16);
+
+  --space-0: 0px;   --space-0_5: 0.5px; --space-1: 1px;  --space-2: 2px;
+  --space-4: 4px;   --space-6: 6px;     --space-8: 8px;  --space-10: 10px;
+  --space-12: 12px; --space-14: 14px;   --space-16: 16px;
+  --space-20: 20px; --space-24: 24px;   --space-32: 32px;
+  --space-40: 40px; --space-48: 48px;   --space-56: 56px;
+  --space-64: 64px; --space-72: 72px;   --space-80: 80px;
+
+  --radius-4: 4px;   --radius-6: 6px;   --radius-8: 8px;
+  --radius-10: 10px; --radius-12: 12px; --radius-16: 16px;
+  --radius-20: 20px; --radius-pill: 9999px;
+
+  --bp-xs: 0px; --bp-sm: 768px; --bp-md: 992px; --bp-lg: 1200px; --bp-xl: 1600px;
+
+  --opacity-5:.05; --opacity-8:.08; --opacity-12:.12; --opacity-16:.16;
+  --opacity-22:.22; --opacity-28:.28; --opacity-35:.35; --opacity-43:.43;
+  --opacity-52:.52; --opacity-61:.61; --opacity-74:.74; --opacity-88:.88;
+  --opacity-97:.97;
+
+  --fs-display1: 3.5rem;    --lh-display1: 4.5rem;    --ls-display1: -0.0319em;
+  --fs-display2: 2.5rem;    --lh-display2: 3.25rem;   --ls-display2: -0.0282em;
+  --fs-display3: 2.25rem;   --lh-display3: 3rem;      --ls-display3: -0.0270em;
+  --fs-title1:   2rem;      --lh-title1:   2.75rem;   --ls-title1:   -0.0253em;
+  --fs-title2:   1.75rem;   --lh-title2:   2.375rem;  --ls-title2:   -0.0236em;
+  --fs-title3:   1.5rem;    --lh-title3:   2rem;      --ls-title3:   -0.0230em;
+  --fs-heading1: 1.375rem;  --lh-heading1: 1.875rem;  --ls-heading1: -0.0194em;
+  --fs-heading2: 1.25rem;   --lh-heading2: 1.75rem;   --ls-heading2: -0.0120em;
+  --fs-headline1: 1.125rem; --lh-headline1: 1.625rem; --ls-headline1: -0.0020em;
+  --fs-headline2: 1.0625rem;--lh-headline2: 1.5rem;   --ls-headline2: 0em;
+  --fs-body1: 1rem;         --lh-body1: 1.5rem;       --ls-body1: 0.0057em;
+  --fs-body2: 0.9375rem;    --lh-body2: 1.375rem;     --ls-body2: 0.0096em;
+  --fs-label1: 0.875rem;    --lh-label1: 1.25rem;     --ls-label1: 0.0145em;
+  --fs-label2: 0.8125rem;   --lh-label2: 1.125rem;    --ls-label2: 0.0194em;
+  --fs-caption1: 0.75rem;   --lh-caption1: 1rem;      --ls-caption1: 0.0252em;
+  --fs-caption2: 0.6875rem; --lh-caption2: 0.875rem;  --ls-caption2: 0.0311em;
+
+  --fw-regular: 400; --fw-medium: 500; --fw-bold-ui: 600; --fw-bold-display: 700;
+
+  /* Motion — WDS 는 토큰을 정의하지 않음. iOS Montage 컴포넌트에서 추출. */
+  --ease-standard:  cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-overshoot: cubic-bezier(0.25, 1.25, 0.4, 0.99);
+  --dur-fast:  200ms;
+  --dur-base:  300ms;
+  --dur-slow:  500ms;
+}
+
+[data-theme="dark"] {
+  --primary-normal: var(--blue-60);
+  --primary-strong: var(--blue-55);
+  --primary-heavy:  var(--blue-50);
+  --label-normal:      var(--coolNeutral-99);
+  --label-strong:      #ffffff;
+  --label-neutral:     rgba(194, 196, 200, 0.88);
+  --label-alternative: rgba(174, 176, 182, 0.61);
+  --label-assistive:   rgba(174, 176, 182, 0.28);
+  --label-disable:     rgba(152, 155, 162, 0.16);
+  --background-normal-normal:           var(--coolNeutral-15);
+  --background-normal-alternative:      var(--coolNeutral-5);
+  --background-elevated-normal:         var(--coolNeutral-17);
+  --background-elevated-alternative:    var(--coolNeutral-7);
+  --background-transparent-normal:      rgba(33,34,37,0.61);
+  --background-transparent-alternative: rgba(33,34,37,0.61);
+  --interaction-inactive: var(--coolNeutral-40);
+  --interaction-disable:  var(--coolNeutral-22);
+  --line-normal-normal:      rgba(112,115,124,0.32);
+  --line-normal-neutral:     rgba(112,115,124,0.28);
+  --line-normal-alternative: rgba(112,115,124,0.22);
+  --line-solid-normal:       var(--coolNeutral-25);
+  --line-solid-neutral:      var(--coolNeutral-23);
+  --line-solid-alternative:  var(--coolNeutral-22);
+  --status-positive:   var(--green-60);
+  --status-cautionary: var(--orange-60);
+  --status-negative:   var(--red-60);
+  --fill-normal:      rgba(112,115,124,0.22);
+  --fill-strong:      rgba(112,115,124,0.28);
+  --fill-alternative: rgba(112,115,124,0.12);
+  --material-dimmer: rgba(23,23,25,0.74);
+  --inverse-primary:    var(--blue-50);
+  --inverse-background: #ffffff;
+  --inverse-label:      var(--coolNeutral-10);
+}
+
+/* Press feedback — iOS Montage Interaction.swift: dark overlay 0.12 on pressed.
+   Usage: <Button className="wds-pressable"> 또는 interactive Card 에 className 으로 적용. */
+.wds-pressable { position: relative; }
+.wds-pressable::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+.wds-pressable:active::after { opacity: 0.12; }
+[data-theme="dark"] .wds-pressable::after { background: #fff; }
+[data-theme="dark"] .wds-pressable:active::after { opacity: 0.08; }
