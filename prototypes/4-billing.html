@@ -46,6 +46,24 @@ html, body { margin: 0; padding: 0; background: var(--background-normal-alternat
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--fill-strong); border-radius: 3px; }
+
+.compare-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+.compare-arrow {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+@media (max-width: 767px) {
+  .compare-row { flex-direction: column; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .compare-arrow { transform: rotate(90deg); }
+}
 </style>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
@@ -944,9 +962,9 @@ function CompareSection({ index, title, subtitle, asIsContent, toBeContent }) {
         <div style={{ fontSize: 'var(--fs-title2)', fontWeight: 700, letterSpacing: 'var(--ls-title2)' }}>{title}</div>
         {subtitle && <div style={{ fontSize: 'var(--fs-body1)', color: 'var(--label-alternative)', marginTop: 8 }}>{subtitle}</div>}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'nowrap' }}>
+      <div className="compare-row">
         <PhoneFrame badge={<AsIsBadge />}>{asIsContent}</PhoneFrame>
-        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+        <div className="compare-arrow">
           <ArrowRight size={24} color="var(--label-assistive)" />
         </div>
         <PhoneFrame badge={<ToBeBadge />}>{toBeContent}</PhoneFrame>
