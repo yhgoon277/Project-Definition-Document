@@ -653,56 +653,66 @@ function Screen4_ToBe({ nav }) {
 }
 
 function Screen5_ToBe({ nav }) {
+  const [selected, setSelected] = React.useState(0);
   const plans = [
-    { name: '5G 슬림+ (현재)', price: '72,400원', current: true },
-    { name: '5G 스탠다드', price: '69,000원', save: '-3,400원' },
-    { name: '5G 다이렉트', price: '59,900원', save: '-12,500원' },
+    { name: '5G 슬림+',   price: '72,400원', save: null,        current: true  },
+    { name: '5G 스탠다드', price: '69,000원', save: '-3,400원',  current: false },
+    { name: '5G 다이렉트', price: '59,900원', save: '-12,500원', current: false },
+  ];
+  const impact = [
+    <>현재 요금제를 유지해요. 변화 없음.</>,
+    <>첫 달 <strong>+2,000원</strong> (위약금 일할) · 두 달째부터 <strong style={{ color: 'var(--status-positive)' }}>-3,400원</strong> / 월</>,
+    <>첫 달 <strong>+4,000원</strong> (위약금 일할) · 두 달째부터 <strong style={{ color: 'var(--status-positive)' }}>-12,500원</strong> / 월</>,
   ];
   return (
-    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ textAlign: 'center', marginTop: 4 }}>
-        <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)' }}>다음 달 예상</div>
-        <AnimatedNumber value={72400} suffix="원" style={{ fontSize: 36, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em', marginTop: 4 }} />
-      </div>
-
-      <div style={{ marginTop: 8 }}>
-        <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>요금제 변경 시 얼마?</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {plans.map((p, i) => (
-            <Card key={i} style={{
-              padding: 16, gap: 6,
-              border: p.current ? '2px solid var(--primary-normal)' : '1px solid var(--line-normal-alternative)',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 'var(--fs-body1)', fontWeight: 600 }}>{p.name}</span>
-                <span style={{ fontSize: 'var(--fs-headline1)', fontWeight: 700, fontFamily: 'var(--font-family-display)' }}>{p.price}</span>
-              </div>
-              {p.save && (
-                <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--status-positive)', fontWeight: 600 }}>{p.save}/월 절약</div>
-              )}
-              {p.current && <Badge color="primary">현재 요금제</Badge>}
-            </Card>
-          ))}
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <TopNavigation title="시뮬레이션" leading={<NavBackButton onClick={() => nav('s2')} />} />
+      <div style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ textAlign: 'center', marginTop: 4 }}>
+          <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)' }}>다음 달 예상</div>
+          <AnimatedNumber value={72400} suffix="원" style={{ fontSize: 36, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em', marginTop: 4 }} />
         </div>
-      </div>
 
-      <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
-        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>변경 시 영향</div>
-        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
-          첫 달 <strong>+4,000원</strong> (위약금 일할) · 두 달째부터 <strong style={{ color: 'var(--status-positive)' }}>-8,000원</strong>
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>요금제 변경 시 얼마?</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {plans.map((p, i) => (
+              <Card key={i} interactive onClick={() => setSelected(i)} style={{
+                padding: 16, gap: 6,
+                border: i === selected ? '2px solid var(--primary-normal)' : '1px solid var(--line-normal-alternative)',
+                transition: 'border-color var(--dur-base) var(--ease-standard)',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 'var(--fs-body1)', fontWeight: 600 }}>{p.name}</span>
+                  <span style={{ fontSize: 'var(--fs-headline1)', fontWeight: 700, fontFamily: 'var(--font-family-display)' }}>{p.price}</span>
+                </div>
+                {p.save && (
+                  <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--status-positive)', fontWeight: 600 }}>{p.save}/월 절약</div>
+                )}
+                {p.current && <Badge color="primary">현재 요금제</Badge>}
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
+          <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>변경 시 영향</div>
+          <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>{impact[selected]}</p>
+        </Card>
+
+        <Card style={{ gap: 8, background: 'var(--bg-accent-violet-soft)', border: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <SparkleIcon size={14} color="var(--accent-fg-violet)" />
+            <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-violet)' }}>AI 추천</span>
+          </div>
+          <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>최근 사용량 기준, 5G 다이렉트로 바꾸면 연 15만원 절약이 가능해요.</p>
+        </Card>
+
+        <Button fullWidth disabled={selected === 0} style={{ marginTop: 8 }}>요금제 바꾸기</Button>
+        <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', textAlign: 'center' }}>
+          {selected === 0 ? '다른 요금제를 선택해 변경 효과를 확인해 보세요' : '별도 요금제 변경 플로우로 연결됩니다'}
         </p>
-      </Card>
-
-      <Card style={{ gap: 8, background: 'color-mix(in srgb, var(--accent-bg-violet) 8%, transparent)', border: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <SparkleIcon size={14} color="var(--accent-fg-violet)" />
-          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-violet)' }}>AI 추천</span>
-        </div>
-        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>최근 사용량 기준, 5G 다이렉트로 바꾸면 연 15만원 절약이 가능해요.</p>
-      </Card>
-
-      <Button fullWidth disabled style={{ marginTop: 8 }}>요금제 바꾸기</Button>
-      <p style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-assistive)', textAlign: 'center' }}>별도 요금제 변경 플로우로 연결됩니다</p>
+      </div>
     </div>
   );
 }
@@ -715,78 +725,72 @@ function Screen7_ToBe({ nav }) {
     { m: '2월', ok: true }, { m: '3월', ok: true }, { m: '4월', ok: true },
     { m: '5월', ok: false }, { m: '6월', ok: true }, { m: '7월', ok: true },
   ];
+  const events = [
+    { time: '5/25', text: '자동납부 실패 · 잔액 부족',   color: 'var(--status-negative)'   },
+    { time: '5/26', text: '알림 발송 · 잔액 확인 안내',   color: 'var(--status-cautionary)' },
+    { time: '5/28', text: '자동 재시도 성공',             color: 'var(--status-positive)'   },
+  ];
   return (
-    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Card style={{ gap: 12, padding: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'color-mix(in srgb, var(--status-positive) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CheckCircle size={20} color="var(--status-positive)" />
-          </div>
-          <div>
-            <div style={{ fontSize: 'var(--fs-body1)', fontWeight: 600 }}>자동납부 활성화</div>
-            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>다음 출금 7/25 · 신한카드 ****1234</div>
-          </div>
-        </div>
-      </Card>
-
-      <div className="wds-pressable" style={{
-        padding: '14px 16px', borderRadius: 12,
-        background: 'color-mix(in srgb, var(--status-cautionary) 10%, transparent)',
-        border: '1px solid color-mix(in srgb, var(--status-cautionary) 20%, transparent)',
-        display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-      }} onClick={() => nav('s9')}>
-        <AlertTriangle size={18} color="var(--status-cautionary)" />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-orange)' }}>카드 유효기간 9월 만료 예정</div>
-          <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>지금 바꾸기</div>
-        </div>
-        <ChevronRight size={14} color="var(--status-cautionary)" />
-      </div>
-
-      <div>
-        <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>최근 결제 이력</div>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-          {months.map((m, i) => (
-            <div key={i} style={{
-              minWidth: 52, padding: '10px 0', borderRadius: 10, textAlign: 'center',
-              background: m.ok ? 'color-mix(in srgb, var(--status-positive) 8%, transparent)' : 'color-mix(in srgb, var(--status-negative) 8%, transparent)',
-              border: `1px solid ${m.ok ? 'color-mix(in srgb, var(--status-positive) 16%, transparent)' : 'color-mix(in srgb, var(--status-negative) 16%, transparent)'}`,
-            }}>
-              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{m.m}</div>
-              <div style={{ fontSize: 14, marginTop: 4 }}>{m.ok ? '✓' : '✗'}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Card style={{ gap: 12 }}>
-        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>실패 복구 가이드</div>
-        {[
-          { time: '5/25', text: '자동납부 실패 · 잔액 부족', color: 'var(--status-negative)' },
-          { time: '5/26', text: '알림 발송 · 잔액 확인 안내', color: 'var(--status-cautionary)' },
-          { time: '5/28', text: '자동 재시도 성공', color: 'var(--status-positive)' },
-        ].map((ev, i) => (
-          <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 20 }}>
-              <div style={{ width: 10, height: 10, borderRadius: 5, background: ev.color, flexShrink: 0 }} />
-              {i < 2 && <div style={{ width: 2, height: 24, background: 'var(--line-normal-alternative)' }} />}
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <TopNavigation title="자동납부" leading={<NavBackButton onClick={() => nav('s2')} />} />
+      <div style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Card style={{ gap: 12, padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--bg-status-positive-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle size={20} color="var(--status-positive)" />
             </div>
             <div>
-              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{ev.time}</div>
-              <div style={{ fontSize: 'var(--fs-body2)', fontWeight: 500, marginTop: 2 }}>{ev.text}</div>
+              <div style={{ fontSize: 'var(--fs-body1)', fontWeight: 600 }}>자동납부 활성화</div>
+              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>다음 출금 7/25 · 신한카드 ****1234</div>
             </div>
           </div>
-        ))}
-      </Card>
+        </Card>
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-        <Button fullWidth onClick={() => nav('s9')}>결제수단 바꾸기</Button>
+        <div className="wds-pressable" style={{
+          padding: '14px 16px', borderRadius: 12,
+          background: 'var(--bg-status-cautionary-soft)',
+          border: '1px solid var(--border-status-cautionary-soft)',
+          display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+        }} onClick={() => nav('s9')}>
+          <AlertTriangle size={18} color="var(--status-cautionary)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-orange)' }}>카드 유효기간 9월 만료 예정</div>
+            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>지금 바꾸기</div>
+          </div>
+          <ChevronRight size={14} color="var(--status-cautionary)" />
+        </div>
+
+        <div>
+          <div style={{ fontSize: 'var(--fs-headline2)', fontWeight: 'var(--fw-bold-ui)', marginBottom: 12 }}>최근 결제 이력</div>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+            {months.map((m, i) => (
+              <Chip key={i} size="xs" variant={m.ok ? 'positive' : 'negative'}>
+                {m.m} {m.ok ? '✓' : '✗'}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        <Card style={{ padding: 0, gap: 0 }}>
+          <div style={{ padding: '16px 20px 8px', fontSize: 'var(--fs-label1)', fontWeight: 600 }}>실패 복구 가이드</div>
+          {events.map((ev, i) => (
+            <ListCellRow key={i}
+              leading={<div style={{ width: 10, height: 10, borderRadius: 5, background: ev.color, flexShrink: 0 }} />}
+              title={ev.text}
+              caption={ev.time}
+              showSeparator={i > 0}
+            />
+          ))}
+          <div style={{ height: 8 }} />
+        </Card>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+          <Button fullWidth onClick={() => nav('s9')}>결제수단 바꾸기</Button>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button variant="outlined" color="assistive" size="small" onClick={() => {}}>자동납부 끄기</Button>
+          </div>
+        </div>
       </div>
-      <button className="wds-pressable" onClick={() => {}} style={{
-        background: 'none', border: 0, cursor: 'pointer',
-        fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', textAlign: 'center',
-        padding: 8, borderRadius: 8, fontFamily: 'var(--font-family-base)',
-      }}>자동납부 끄기</button>
     </div>
   );
 }
