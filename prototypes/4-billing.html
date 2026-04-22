@@ -197,6 +197,60 @@ const Avatar = ({ src, name, size = 40 }) => {
   );
 };
 
+const TopNavigation = ({ title, leading, trailing, transparent }) => (
+  <div style={{
+    height: 44, padding: '0 16px',
+    display: 'grid', gridTemplateColumns: '44px 1fr 44px', alignItems: 'center',
+    background: transparent ? 'transparent' : 'var(--background-normal-normal)',
+    borderBottom: transparent ? 'none' : '1px solid var(--line-normal-alternative)',
+    position: 'sticky', top: 0, zIndex: 10,
+  }}>
+    <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center' }}>{leading}</div>
+    <div style={{
+      textAlign: 'center',
+      fontSize: 'var(--fs-headline2)', lineHeight: 'var(--lh-headline2)',
+      fontWeight: 'var(--fw-bold-ui)', letterSpacing: 'var(--ls-headline2)',
+      color: 'var(--label-normal)',
+      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+    }}>{title}</div>
+    <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center' }}>{trailing}</div>
+  </div>
+);
+
+const NavBackButton = ({ onClick }) => (
+  <button className="wds-pressable" onClick={onClick} style={{
+    width: 44, height: 44, border: 0, background: 'transparent', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
+    color: 'var(--label-normal)', padding: 0,
+  }}>
+    <BackIcon size={22} />
+  </button>
+);
+
+const ListCellRow = ({ leading, title, caption, trailing, onClick, showSeparator, style: extra }) => (
+  <div
+    className={onClick ? 'wds-pressable' : undefined}
+    onClick={onClick}
+    style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '12px 20px', minHeight: 24,
+      cursor: onClick ? 'pointer' : 'default',
+      borderTop: showSeparator ? '1px solid var(--line-normal-alternative)' : 'none',
+      ...extra,
+    }}>
+    {leading}
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
+      {title !== undefined && title !== null && (
+        <div style={{ fontSize: 'var(--fs-body2)', lineHeight: 'var(--lh-body2)', fontWeight: 600, color: 'var(--label-normal)' }}>{title}</div>
+      )}
+      {caption !== undefined && caption !== null && (
+        <div style={{ fontSize: 'var(--fs-caption1)', lineHeight: 'var(--lh-caption1)', color: 'var(--label-alternative)' }}>{caption}</div>
+      )}
+    </div>
+    {trailing}
+  </div>
+);
+
 /* ============================================================
    Icons
    ============================================================ */
