@@ -73,7 +73,9 @@ const Button = ({
   const getBg = () => {
     if (disabled) return 'var(--interaction-disable)';
     if (variant === 'outlined') return 'transparent';
-    if (color === 'assistive') return 'var(--fill-normal)';
+    if (color === 'assistive') {
+      return resolvedSize === 'large' ? 'var(--fill-strong)' : 'var(--fill-normal)';
+    }
     return 'var(--primary-normal)';
   };
   const getFg = () => {
@@ -88,7 +90,8 @@ const Button = ({
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     gap: sizeMap.gap, fontFamily: 'var(--font-family-base)',
     fontSize: sizeMap.fs, fontWeight: color === 'assistive' ? 500 : sizeMap.fw,
-    padding: iconOnly ? sizeMap.iconPad : `${sizeMap.py}px ${sizeMap.px}px`,
+    height: iconOnly ? 'auto' : sizeMap.h, boxSizing: 'border-box',
+    padding: iconOnly ? sizeMap.iconPad : `0 ${sizeMap.px}px`,
     borderRadius: sizeMap.radius, border: 0, cursor: disabled ? 'default' : 'pointer',
     background: getBg(), color: getFg(),
     width: fullWidth ? '100%' : 'fit-content',
@@ -108,38 +111,41 @@ const Button = ({
   );
 };
 
-const Chip = ({ selected, variant = 'default', leading, onClick, children }) => {
+const Chip = ({ size = 'medium', variant = 'default', leading, onClick, children }) => {
+  const sizeMap = {
+    medium: { py: 7, px: 11, fs: 'var(--fs-label1)', lh: 'var(--lh-label1)' },
+    small:  { py: 6, px:  8, fs: 'var(--fs-label1)', lh: 'var(--lh-label1)' },
+    xs:     { py: 4, px:  7, fs: 'var(--fs-caption1)', lh: 'var(--lh-caption1)' },
+  }[size];
+  const variantMap = {
+    default:  { bg: 'var(--fill-alternative)',         fg: 'var(--label-neutral)' },
+    primary:  { bg: 'var(--bg-primary-soft)',          fg: 'var(--primary-normal)' },
+    positive: { bg: 'var(--bg-status-positive-soft)',  fg: 'var(--accent-fg-green)' },
+    negative: { bg: 'var(--bg-status-negative-soft)',  fg: 'var(--accent-fg-red)' },
+  }[variant] || { bg: 'var(--fill-alternative)', fg: 'var(--label-neutral)' };
   const style = {
     display: 'inline-flex', alignItems: 'center', gap: 4,
-    padding: '7px 14px', borderRadius: 9999,
-    fontFamily: 'var(--font-family-base)', fontSize: 13, fontWeight: 500,
-    cursor: 'pointer', border: 0, whiteSpace: 'nowrap',
-    background: selected ? 'var(--label-normal)' :
-      variant === 'fill' ? 'var(--fill-normal)' : 'var(--background-elevated-normal)',
-    color: selected ? 'var(--static-white)' :
-      variant === 'primary' ? 'var(--primary-normal)' : 'var(--label-neutral)',
-    boxShadow: selected ? 'none' :
-      variant === 'primary' ? 'inset 0 0 0 1px var(--primary-normal)' :
-      variant === 'fill' ? 'none' : 'inset 0 0 0 1px var(--line-normal-neutral)',
-    transition: 'all 0.2s ease',
+    padding: `${sizeMap.py}px ${sizeMap.px}px`, borderRadius: 8,
+    fontFamily: 'var(--font-family-base)',
+    fontSize: sizeMap.fs, lineHeight: sizeMap.lh, fontWeight: 500,
+    cursor: onClick ? 'pointer' : 'default', border: 0, whiteSpace: 'nowrap',
+    background: variantMap.bg, color: variantMap.fg,
   };
-  return <button style={style} onClick={onClick}>{leading}{children}</button>;
+  return <button style={style} onClick={onClick} className={onClick ? 'wds-pressable' : undefined}>{leading}{children}</button>;
 };
 
 const Badge = ({ color = 'primary', children }) => {
   const map = {
-    positive: ['color-mix(in srgb, var(--status-positive) 14%, transparent)', 'var(--accent-fg-green)'],
-    cautionary: ['color-mix(in srgb, var(--status-cautionary) 18%, transparent)', 'var(--accent-fg-orange)'],
-    negative: ['color-mix(in srgb, var(--status-negative) 16%, transparent)', 'var(--accent-fg-red)'],
-    primary: ['var(--blue-95)', 'var(--primary-normal)'],
-    violet: ['color-mix(in srgb, var(--violet-50) 14%, transparent)', 'var(--accent-fg-violet)'],
-    pink: ['color-mix(in srgb, var(--pink-50) 16%, transparent)', 'var(--accent-fg-pink)'],
-    cyan: ['color-mix(in srgb, var(--cyan-50) 18%, transparent)', 'var(--accent-fg-cyan)'],
+    positive:   ['var(--bg-status-positive-soft)',   'var(--accent-fg-green)'],
+    cautionary: ['var(--bg-status-cautionary-soft)', 'var(--accent-fg-orange)'],
+    negative:   ['var(--bg-status-negative-soft)',   'var(--accent-fg-red)'],
+    primary:    ['var(--blue-95)',                   'var(--primary-normal)'],
+    violet:     ['var(--bg-accent-violet-soft)',     'var(--accent-fg-violet)'],
   };
-  const [bg, fg] = map[color];
+  const [bg, fg] = map[color] || map.primary;
   return <span style={{
     display: 'inline-flex', alignItems: 'center', gap: 4,
-    padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+    padding: '4px 7px', borderRadius: 8, fontSize: 12, fontWeight: 600,
     letterSpacing: '0.02em', fontFamily: 'var(--font-family-base)',
     background: bg, color: fg,
   }}>{children}</span>;
@@ -176,16 +182,20 @@ const Input = ({ label, error, help, ...rest }) => (
   </div>
 );
 
-const Avatar = ({ src, name, size = 40 }) => (
-  <div style={{
-    width: size, height: size, borderRadius: '50%',
-    background: src ? `url(${src}) center/cover` : 'var(--fill-strong)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: 'var(--label-neutral)', fontFamily: 'var(--font-family-base)',
-    fontSize: size * 0.4, fontWeight: 600, flexShrink: 0,
-    boxShadow: 'inset 0 0 0 1px var(--line-normal-alternative)',
-  }}>{!src && name ? name[0].toUpperCase() : null}</div>
-);
+const Avatar = ({ src, name, size = 40 }) => {
+  const sizeMap = { xs: 24, s: 32, m: 40, l: 48, xl: 56 };
+  const px = typeof size === 'string' ? (sizeMap[size] || 40) : size;
+  return (
+    <div style={{
+      width: px, height: px, borderRadius: '50%',
+      background: src ? `url(${src}) center/cover` : 'var(--fill-strong)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'var(--label-neutral)', fontFamily: 'var(--font-family-base)',
+      fontSize: px * 0.4, fontWeight: 600, flexShrink: 0,
+      boxShadow: 'inset 0 0 0 1px var(--line-normal-alternative)',
+    }}>{!src && name ? name[0].toUpperCase() : null}</div>
+  );
+};
 
 /* ============================================================
    Icons

@@ -170,6 +170,20 @@
   --dur-fast:  200ms;
   --dur-base:  300ms;
   --dur-slow:  500ms;
+
+  /* Soft status/accent backgrounds — semantic 토큰에 바인딩 (테마 전환 시 자동 반영).
+     JSX 인라인 color-mix() 제거를 위한 단일 진입점. */
+  --bg-primary-soft:               color-mix(in srgb, var(--primary-normal)      8%, transparent);
+  --border-primary-soft:           color-mix(in srgb, var(--primary-normal)     20%, transparent);
+  --bg-status-positive-soft:       color-mix(in srgb, var(--status-positive)   10%, transparent);
+  --border-status-positive-soft:   color-mix(in srgb, var(--status-positive)   20%, transparent);
+  --bg-status-cautionary-soft:     color-mix(in srgb, var(--status-cautionary) 10%, transparent);
+  --border-status-cautionary-soft: color-mix(in srgb, var(--status-cautionary) 20%, transparent);
+  --bg-status-negative-soft:       color-mix(in srgb, var(--status-negative)    8%, transparent);
+  --border-status-negative-soft:   color-mix(in srgb, var(--status-negative)   16%, transparent);
+  --bg-accent-violet-soft:         color-mix(in srgb, var(--accent-bg-violet)   8%, transparent);
+  --bg-accent-orange-soft:         color-mix(in srgb, var(--status-cautionary) 14%, transparent);
+  --bg-accent-green-soft:          color-mix(in srgb, var(--status-positive)    6%, transparent);
 }
 
 [data-theme="dark"] {
