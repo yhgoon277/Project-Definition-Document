@@ -520,61 +520,69 @@ function Screen8_AsIs({ nav }) {
    Screens — TO-BE (2 Hub, 4, 5)
    ============================================================ */
 function Screen2_Hub({ nav }) {
+  const families = [
+    { name: '김영희', role: '배우자', amount: '52,300원' },
+    { name: '김서연', role: '자녀',   amount: '38,100원' },
+  ];
   return (
-    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Card interactive onClick={() => nav('s4')} style={{ padding: 24, gap: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <AnimatedNumber value={68200} suffix="원" style={{ fontSize: 32, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em' }} />
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
-              <span style={{ fontSize: 'var(--fs-label1)', color: 'var(--status-cautionary)', fontWeight: 600 }}>전월 대비 +3,200원 ▲</span>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <TopNavigation title="요금" />
+      <div style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Card interactive onClick={() => nav('s4')} style={{ padding: 24, gap: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <AnimatedNumber value={68200} suffix="원" style={{ fontSize: 32, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em' }} />
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
+                <span style={{ fontSize: 'var(--fs-label1)', color: 'var(--status-cautionary)', fontWeight: 600 }}>전월 대비 +3,200원 ▲</span>
+              </div>
             </div>
+            <BillIcon size={24} color="var(--primary-normal)" />
           </div>
-          <BillIcon size={24} color="var(--primary-normal)" />
-        </div>
-        <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 4 }}>7월 25일 자동납부 예정</div>
-      </Card>
+          <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 4 }}>7월 25일 자동납부 예정</div>
+        </Card>
 
-      <div className="wds-pressable" onClick={() => nav('s7')} style={{
-        padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
-        background: 'color-mix(in srgb, var(--status-negative) 8%, transparent)',
-        display: 'flex', alignItems: 'center', gap: 10,
-        border: '1px solid color-mix(in srgb, var(--status-negative) 16%, transparent)',
-      }}>
-        <AlertTriangle size={18} color="var(--status-negative)" />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--status-negative)' }}>6월분 미납 12,000원</div>
-          <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>지금 해결하기</div>
+        <div className="wds-pressable" onClick={() => nav('s7')} style={{
+          padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+          background: 'var(--bg-status-negative-soft)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          border: '1px solid var(--border-status-negative-soft)',
+        }}>
+          <AlertTriangle size={18} color="var(--status-negative)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--status-negative)' }}>6월분 미납 12,000원</div>
+            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', marginTop: 2 }}>지금 해결하기</div>
+          </div>
+          <ChevronRight size={14} color="var(--status-negative)" />
         </div>
-        <ChevronRight size={14} color="var(--status-negative)" />
+
+        <Card interactive onClick={() => nav('s5')} style={{ gap: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', fontWeight: 500 }}>다음 달 예상</div>
+            <ChartIcon size={18} color="var(--accent-fg-violet)" />
+          </div>
+          <AnimatedNumber value={72400} suffix="원" style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-family-display)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary-normal)', fontSize: 'var(--fs-label1)', fontWeight: 500 }}>
+            요금제 변경 시뮬레이션 <ChevronRight size={12} />
+          </div>
+        </Card>
+
+        <Card style={{ padding: 0, gap: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px 8px' }}>
+            <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', fontWeight: 500 }}>가족 회선 요약</div>
+            <UsersIcon size={18} color="var(--accent-fg-cyan)" />
+          </div>
+          {families.map((f, i) => (
+            <ListCellRow key={i}
+              leading={<Avatar size="s" name={f.name} />}
+              title={f.name}
+              caption={f.role}
+              trailing={<span style={{ fontSize: 'var(--fs-body2)', fontWeight: 600 }}>{f.amount}</span>}
+              showSeparator={i > 0}
+            />
+          ))}
+          <div style={{ height: 8 }} />
+        </Card>
       </div>
-
-      <Card interactive onClick={() => nav('s5')} style={{ gap: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', fontWeight: 500 }}>다음 달 예상</div>
-          <ChartIcon size={18} color="var(--accent-fg-violet)" />
-        </div>
-        <AnimatedNumber value={72400} suffix="원" style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-family-display)' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary-normal)', fontSize: 'var(--fs-label1)', fontWeight: 500 }}>
-          요금제 변경 시뮬레이션 <ChevronRight size={12} />
-        </div>
-      </Card>
-
-      <Card style={{ gap: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)', fontWeight: 500 }}>가족 회선 요약</div>
-          <UsersIcon size={18} color="var(--accent-fg-cyan)" />
-        </div>
-        {[{ name: '김영희 (배우자)', amount: '52,300원' }, { name: '김서연 (자녀)', amount: '38,100원' }].map((f, i) => (
-          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: i ? '1px solid var(--line-normal-alternative)' : 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 16, background: 'var(--fill-normal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: 'var(--label-neutral)' }}>{f.name[0]}</div>
-              <span style={{ fontSize: 'var(--fs-body2)', fontWeight: 'var(--fw-medium)' }}>{f.name}</span>
-            </div>
-            <span style={{ fontSize: 'var(--fs-body2)', fontWeight: 600 }}>{f.amount}</span>
-          </div>
-        ))}
-      </Card>
     </div>
   );
 }
@@ -588,7 +596,9 @@ function Screen4_ToBe({ nav }) {
   ];
 
   return (
-    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <TopNavigation title="상세 내역" leading={<NavBackButton onClick={() => nav('s2')} />} />
+      <div style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ marginTop: 4, textAlign: 'center' }}>
         <div style={{ fontSize: 'var(--fs-label1)', color: 'var(--label-alternative)' }}>이번 달 청구</div>
         <AnimatedNumber value={68200} suffix="원" style={{ fontSize: 36, fontWeight: 700, fontFamily: 'var(--font-family-display)', letterSpacing: '-0.02em', marginTop: 4 }} />
@@ -637,6 +647,7 @@ function Screen4_ToBe({ nav }) {
       <Button fullWidth color="assistive" onClick={() => nav('s5')} style={{ marginTop: 8 }}>
         다음 달 예상 시뮬레이션
       </Button>
+      </div>
     </div>
   );
 }
