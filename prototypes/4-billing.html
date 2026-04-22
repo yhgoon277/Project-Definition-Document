@@ -499,7 +499,7 @@ function Screen8_AsIs({ nav }) {
         <div style={{ flex: 1 }}><Input label="CVC" placeholder="000" /></div>
       </div>
       <Input label="생년월일" placeholder="YYMMDD" />
-      <div style={{ marginTop: 8, padding: 16, borderRadius: 10, background: 'color-mix(in srgb, var(--status-negative) 10%, transparent)' }}>
+      <div style={{ marginTop: 8, padding: 16, borderRadius: 10, background: 'var(--bg-status-negative-soft)' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
           <AlertTriangle size={16} color="var(--status-negative)" />
           <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--status-negative)', lineHeight: 1.5 }}>
@@ -797,54 +797,55 @@ function Screen7_ToBe({ nav }) {
 
 function Screen9_ToBe({ nav }) {
   return (
-    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 'var(--fs-heading2)', fontWeight: 'var(--fw-bold-ui)', marginTop: 4 }}>결제수단 변경</div>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <TopNavigation title="결제수단 변경" leading={<NavBackButton onClick={() => nav('s7')} />} />
+      <div style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {[
+            { label: '현재', name: '신한카드',   num: '****1234', bg: 'var(--fill-alternative)' },
+            { label: '변경', name: 'KB국민카드', num: '****5678', bg: 'var(--bg-primary-soft)'   },
+          ].map((c, i) => (
+            <Card key={i} style={{ flex: 1, padding: 16, gap: 6, background: c.bg, border: i === 1 ? '2px solid var(--primary-normal)' : undefined }}>
+              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', fontWeight: 500 }}>{c.label}</div>
+              <CreditCardIcon size={24} color={i === 1 ? 'var(--primary-normal)' : 'var(--label-neutral)'} />
+              <div style={{ fontSize: 'var(--fs-body2)', fontWeight: 600, marginTop: 4 }}>{c.name}</div>
+              <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{c.num}</div>
+            </Card>
+          ))}
+        </div>
 
-      <div style={{ display: 'flex', gap: 10 }}>
-        {[
-          { label: '현재', name: '신한카드', num: '****1234', bg: 'var(--fill-alternative)' },
-          { label: '변경', name: 'KB국민카드', num: '****5678', bg: 'color-mix(in srgb, var(--primary-normal) 8%, transparent)' },
-        ].map((c, i) => (
-          <Card key={i} style={{ flex: 1, padding: 16, gap: 6, background: c.bg, border: i === 1 ? '2px solid var(--primary-normal)' : undefined }}>
-            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)', fontWeight: 500 }}>{c.label}</div>
-            <CreditCardIcon size={24} color={i === 1 ? 'var(--primary-normal)' : 'var(--label-neutral)'} />
-            <div style={{ fontSize: 'var(--fs-body2)', fontWeight: 600, marginTop: 4 }}>{c.name}</div>
-            <div style={{ fontSize: 'var(--fs-caption1)', color: 'var(--label-alternative)' }}>{c.num}</div>
-          </Card>
-        ))}
+        <Card style={{ gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ClockIcon size={18} color="var(--primary-normal)" />
+            <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>적용 일정</span>
+          </div>
+          <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
+            7/22 00시부터 적용. 7/25 자동납부는 새 수단으로 진행됩니다.
+          </p>
+        </Card>
+
+        <Card style={{ gap: 8, background: 'var(--bg-accent-green-soft)', border: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <SparkleIcon size={16} color="var(--status-positive)" />
+            <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-green)' }}>혜택 변화</span>
+          </div>
+          <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
+            KB 제휴 5% 할인 자동 적용, 월 최대 2,000원
+          </p>
+        </Card>
+
+        <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <RefreshIcon size={16} color="var(--label-neutral)" />
+            <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>되돌리기 안내</span>
+          </div>
+          <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>
+            변경 후 24시간 내 취소 가능
+          </p>
+        </Card>
+
+        <Button fullWidth onClick={() => nav('s10')} style={{ marginTop: 8 }}>KB국민카드로 바꾸기</Button>
       </div>
-
-      <Card style={{ gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ClockIcon size={18} color="var(--primary-normal)" />
-          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>적용 일정</span>
-        </div>
-        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
-          7/22 00시부터 적용. 7/25 자동납부는 새 수단으로 진행됩니다.
-        </p>
-      </Card>
-
-      <Card style={{ gap: 8, background: 'color-mix(in srgb, var(--status-positive) 6%, transparent)', border: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <SparkleIcon size={16} color="var(--status-positive)" />
-          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, color: 'var(--accent-fg-green)' }}>혜택 변화</span>
-        </div>
-        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.5 }}>
-          KB 제휴 5% 할인 자동 적용, 월 최대 2,000원
-        </p>
-      </Card>
-
-      <Card style={{ gap: 8, background: 'var(--fill-alternative)', border: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <RefreshIcon size={16} color="var(--label-neutral)" />
-          <span style={{ fontSize: 'var(--fs-label1)', fontWeight: 600 }}>되돌리기 안내</span>
-        </div>
-        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)' }}>
-          변경 후 24시간 내 취소 가능
-        </p>
-      </Card>
-
-      <Button fullWidth onClick={() => nav('s10')} style={{ marginTop: 8 }}>KB국민카드로 바꾸기</Button>
     </div>
   );
 }
@@ -852,44 +853,47 @@ function Screen9_ToBe({ nav }) {
 function Screen10_ToBe({ nav }) {
   const [showCheck, setShowCheck] = React.useState(false);
   React.useEffect(() => { const id = setTimeout(() => setShowCheck(true), 200); return () => clearTimeout(id); }, []);
+  const nextSteps = [
+    { text: '다음 달 예상 금액 확인하기', target: 's5'  },
+    { text: '가족 회선도 같이 관리하기',   target: null },
+  ];
   return (
-    <div style={{ padding: '4px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-      <div style={{
-        marginTop: 40, width: 72, height: 72, borderRadius: 36,
-        background: 'color-mix(in srgb, var(--status-positive) 12%, transparent)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transform: showCheck ? 'scale(1)' : 'scale(0.9)',
-        opacity: showCheck ? 1 : 0, transition: 'all 0.4s ease',
-      }}>
-        <CheckCircle size={36} color="var(--status-positive)" />
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <TopNavigation title="완료" transparent />
+      <div style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
+        <div style={{
+          marginTop: 32, width: 72, height: 72, borderRadius: 36,
+          background: 'var(--bg-status-positive-soft)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transform: showCheck ? 'scale(1)' : 'scale(0.8)',
+          opacity: showCheck ? 1 : 0,
+          transition: 'transform var(--dur-slow) var(--ease-overshoot), opacity var(--dur-base) var(--ease-standard)',
+        }}>
+          <CheckCircle size={36} color="var(--status-positive)" />
+        </div>
+        <div style={{ fontSize: 'var(--fs-title3)', fontWeight: 700, marginTop: 8, textAlign: 'center' }}>변경이 완료되었어요</div>
+
+        <Card style={{ gap: 8, width: '100%', marginTop: 8, textAlign: 'center' }}>
+          <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.6 }}>
+            다음 자동납부부터<br /><strong>KB국민카드</strong>로 출금됩니다
+          </p>
+        </Card>
+
+        <Card style={{ padding: 0, gap: 0, width: '100%' }}>
+          <div style={{ padding: '16px 20px 8px', fontSize: 'var(--fs-label1)', fontWeight: 600 }}>다음 할 일</div>
+          {nextSteps.map((item, i) => (
+            <ListCellRow key={i}
+              onClick={item.target ? () => nav(item.target) : undefined}
+              title={<span style={{ color: 'var(--primary-normal)' }}>{item.text}</span>}
+              trailing={<ChevronRight size={16} color="var(--label-assistive)" />}
+              showSeparator={i > 0}
+            />
+          ))}
+          <div style={{ height: 8 }} />
+        </Card>
+
+        <Button fullWidth color="assistive" onClick={() => nav('s2')} style={{ marginTop: 8 }}>요금 허브로 돌아가기</Button>
       </div>
-      <div style={{ fontSize: 'var(--fs-title3)', fontWeight: 700, marginTop: 8, textAlign: 'center' }}>변경이 완료되었어요</div>
-
-      <Card style={{ gap: 8, width: '100%', marginTop: 8, textAlign: 'center' }}>
-        <p style={{ fontSize: 'var(--fs-body2)', color: 'var(--label-neutral)', lineHeight: 1.6 }}>
-          다음 자동납부부터<br /><strong>KB국민카드</strong>로 출금됩니다
-        </p>
-      </Card>
-
-      <Card style={{ gap: 0, width: '100%' }}>
-        <div style={{ fontSize: 'var(--fs-label1)', fontWeight: 600, marginBottom: 8 }}>다음 할 일</div>
-        {[
-          { text: '다음 달 예상 금액 확인하기', target: 's5' },
-          { text: '가족 회선도 같이 관리하기', target: null },
-        ].map((item, i) => (
-          <div key={i} className={item.target ? 'wds-pressable' : undefined} onClick={() => item.target && nav(item.target)} style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '14px 0', borderTop: i ? '1px solid var(--line-normal-alternative)' : 'none',
-            cursor: item.target ? 'pointer' : 'default',
-            color: 'var(--primary-normal)', fontSize: 'var(--fs-body2)', fontWeight: 500,
-          }}>
-            <span>{item.text}</span>
-            <ChevronRight size={14} />
-          </div>
-        ))}
-      </Card>
-
-      <Button fullWidth color="assistive" onClick={() => nav('s2')} style={{ marginTop: 8 }}>요금 허브로 돌아가기</Button>
     </div>
   );
 }
